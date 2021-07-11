@@ -1,0 +1,11 @@
+[package]
+authors = ["tatamiya <tamyuji1002@gmail.com>"]
+edition = "2018"
+name = "aws_cost_notification"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4"
+rusoto_ce = "0"
