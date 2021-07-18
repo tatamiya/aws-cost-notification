@@ -7,10 +7,15 @@ pub struct DateRange {
 }
 
 pub fn get_date_range(target_date: Date<Local>) -> DateRange {
-    let mut start_date = target_date.with_day(1).unwrap();
-    if start_date == target_date {
-        start_date = target_date.pred().with_day(1).unwrap();
+    let first_day_of_month = target_date.with_day(1).unwrap();
+
+    let start_date: Date<Local>;
+    if target_date == first_day_of_month {
+        start_date = first_day_of_month.pred().with_day(1).unwrap();
+    } else {
+        start_date = first_day_of_month;
     }
+
     DateRange {
         start_date: start_date,
         end_date: target_date,
