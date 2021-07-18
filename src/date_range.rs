@@ -11,6 +11,7 @@ pub fn get_date_range(target_date: Date<Local>) -> DateRange {
 
     let start_date: Date<Local>;
     if target_date == first_day_of_month {
+        // First day of the previous month
         start_date = first_day_of_month.pred().with_day(1).unwrap();
     } else {
         start_date = first_day_of_month;
