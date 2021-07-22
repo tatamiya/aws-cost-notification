@@ -47,20 +47,21 @@ struct ParsedServiceCost {
     cost: f32,
     unit: String,
 }
+impl ParsedServiceCost {
+    fn new(res: &GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
+        vec![ParsedServiceCost {
+            service_name: String::from("Amazon Simple Storage Service"),
+            cost: 1234.56,
+            unit: String::from("USD"),
+        }]
+    }
+}
 
 fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<Local>> {
     let parsed_start_date = NaiveDate::parse_from_str(timestamp, "%Y-%m-%d")
         .ok()
         .unwrap();
     Local.from_local_date(&parsed_start_date)
-}
-
-fn parse_service_costs(res: GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
-    vec![ParsedServiceCost {
-        service_name: String::from("Amazon Simple Storage Service"),
-        cost: 1234.56,
-        unit: String::from("USD"),
-    }]
 }
 
 mod test_helpers {
@@ -180,7 +181,7 @@ mod tests {
             cost: 1234.56,
             unit: String::from("USD"),
         }];
-        let actual_parsed_service_costs = parse_service_costs(input_response);
+        let actual_parsed_service_costs = ParsedServiceCost::new(&input_response);
 
         assert_eq!(expected_parsed_service_costs, actual_parsed_service_costs);
     }
