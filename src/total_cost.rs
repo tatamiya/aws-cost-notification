@@ -121,37 +121,68 @@ mod service_cost_tests {
     use rusoto_ce::*;
     use std::collections::HashMap;
 
-    #[test]
-    fn parse_service_costs_correctly() {
-        let mut input_service_cost = HashMap::new();
-        input_service_cost.insert(
+    struct InputServiceCost {
+        service_name: String,
+        cost: String,
+    }
+    impl InputServiceCost {
+        fn as_group(&self) -> Group {
+            let mut metrics = HashMap::new();
+            metrics.insert(
+                String::from("AmortizedCost"),
+                MetricValue {
+                    amount: Some(self.cost.clone()),
+                    unit: Some(String::from("USD")),
+                },
+            );
+            Group {
+                keys: Some(vec![self.service_name.clone()]),
+                metrics: Some(metrics),
+            }
+        }
+    }
+
+    fn prepare_sample_response(
+        date_interval: Option<DateInterval>,
+        total_cost: Option<String>,
+        service_costs: Option<Vec<InputServiceCost>>,
+    ) -> GetCostAndUsageResponse {
+        let mut total = HashMap::new();
+        total.insert(
             String::from("AmortizedCost"),
             MetricValue {
-                amount: Some(String::from("1234.56")),
+                amount: total_cost,
                 unit: Some(String::from("USD")),
             },
         );
+        let input_grouped_costs: Option<Vec<Group>> = match service_costs {
+            Some(service_costs) => Some(service_costs.iter().map(|x| x.as_group()).collect()),
+            None => None,
+        };
 
-        let input_grouped_cost = vec![Group {
-            keys: Some(vec![String::from("Amazon Simple Storage Service")]),
-            metrics: Some(input_service_cost),
-        }];
-
-        let input_response = GetCostAndUsageResponse {
+        GetCostAndUsageResponse {
             dimension_value_attributes: None,
             group_definitions: None,
             next_page_token: None,
             results_by_time: Some(vec![ResultByTime {
                 estimated: Some(false),
-                groups: Some(input_grouped_cost),
-                time_period: Some(DateInterval {
-                    start: String::from("2021-07-01"),
-                    end: String::from("2021-07-18"),
-                }),
-                total: None,
+                groups: input_grouped_costs,
+                time_period: date_interval,
+                total: Some(total),
             }]),
-        };
+        }
+    }
 
+    #[test]
+    fn parse_service_costs_correctly() {
+        let input_response: GetCostAndUsageResponse = prepare_sample_response(
+            None,
+            None,
+            Some(vec![InputServiceCost {
+                service_name: String::from("Amazon Simple Storage Service"),
+                cost: String::from("1234.56"),
+            }]),
+        );
         let expected_parsed_service_costs = vec![ParsedServiceCost {
             service_name: String::from("Amazon Simple Storage Service"),
             cost: 1234.56,
