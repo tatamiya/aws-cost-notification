@@ -193,16 +193,23 @@ mod tests {
         let input_response: GetCostAndUsageResponse = prepare_sample_response(
             None,
             None,
-            Some(vec![InputServiceCost::new(
-                "Amazon Simple Storage Service",
-                "1234.56",
-            )]),
+            Some(vec![
+                InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
+                InputServiceCost::new("Amazon Elastic Compute Cloud", "31415.92"),
+            ]),
         );
-        let expected_parsed_service_costs = vec![ParsedServiceCost {
-            service_name: String::from("Amazon Simple Storage Service"),
-            cost: 1234.56,
-            unit: String::from("USD"),
-        }];
+        let expected_parsed_service_costs = vec![
+            ParsedServiceCost {
+                service_name: String::from("Amazon Simple Storage Service"),
+                cost: 1234.56,
+                unit: String::from("USD"),
+            },
+            ParsedServiceCost {
+                service_name: String::from("Amazon Elastic Compute Cloud"),
+                cost: 31415.92,
+                unit: String::from("USD"),
+            },
+        ];
         let actual_parsed_service_costs = ParsedServiceCost::from_response(&input_response);
 
         assert_eq!(expected_parsed_service_costs, actual_parsed_service_costs);
