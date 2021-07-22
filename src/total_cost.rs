@@ -27,18 +27,7 @@ impl CostExplorerService {
             group_by: None,
             metrics: vec![String::from("AmortizedCost")],
             next_page_token: None,
-            time_period: DateInterval {
-                end: self
-                    .report_date_range
-                    .end_date
-                    .format("%Y-%m-%d")
-                    .to_string(),
-                start: self
-                    .report_date_range
-                    .start_date
-                    .format("%Y-%m-%d")
-                    .to_string(),
-            },
+            time_period: self.report_date_range.as_date_interval(),
         };
 
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();

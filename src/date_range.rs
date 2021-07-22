@@ -1,9 +1,10 @@
 use chrono::{Date, Datelike, Local};
+use rusoto_ce::DateInterval;
 
 #[derive(Debug, PartialEq)]
 pub struct DateRange {
-    pub start_date: Date<Local>,
-    pub end_date: Date<Local>,
+    start_date: Date<Local>,
+    end_date: Date<Local>,
 }
 impl DateRange {
     fn new(reporting_date: Date<Local>) -> Self {
@@ -22,12 +23,20 @@ impl DateRange {
             end_date: reporting_date,
         }
     }
+
+    pub fn as_date_interval(self) -> DateInterval {
+        DateInterval {
+            end: self.end_date.format("%Y-%m-%d").to_string(),
+            start: self.start_date.format("%Y-%m-%d").to_string(),
+        }
+    }
 }
 
 #[cfg(test)]
 mod date_range_tests {
     use super::*;
     use chrono::{Local, TimeZone};
+    use rusoto_ce::DateInterval;
 
     #[test]
     fn middle_of_month() {
@@ -55,5 +64,22 @@ mod date_range_tests {
         let actual_date_range = DateRange::new(input_date);
 
         assert_eq!(expected_date_range, actual_date_range);
+    }
+
+    #[test]
+    fn as_interval() {
+        let input_date_range = DateRange {
+            start_date: Local.ymd(2021, 7, 1),
+            end_date: Local.ymd(2021, 7, 22),
+        };
+
+        let expected_date_interval = DateInterval {
+            start: "2021-07-01".to_string(),
+            end: "2021-07-22".to_string(),
+        };
+
+        let actual_date_interval = input_date_range.as_date_interval();
+
+        assert_eq!(expected_date_interval, actual_date_interval);
     }
 }
