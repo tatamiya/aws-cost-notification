@@ -54,7 +54,7 @@ struct ParsedTotalCost {
     unit: String,
 }
 impl ParsedTotalCost {
-    fn from_response(res: &GetCostAndUsageResponse) -> ParsedTotalCost {
+    fn from_response(res: &GetCostAndUsageResponse) -> Self {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
         let time_period = result_by_time.time_period.as_ref().unwrap();
 
@@ -93,7 +93,7 @@ struct ParsedServiceCost {
     unit: String,
 }
 impl ParsedServiceCost {
-    fn from_group(group: &Group) -> ParsedServiceCost {
+    fn from_group(group: &Group) -> Self {
         let service_name = &group.keys.as_ref().unwrap()[0];
         let amortized_cost = group
             .metrics
@@ -114,7 +114,7 @@ impl ParsedServiceCost {
             unit: unit,
         }
     }
-    fn from_response(res: &GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
+    fn from_response(res: &GetCostAndUsageResponse) -> Vec<Self> {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
         let groups = result_by_time.groups.as_ref().unwrap();
         groups
@@ -140,7 +140,7 @@ mod test_helpers {
         cost: String,
     }
     impl InputServiceCost {
-        pub fn new(service_name: &str, cost: &str) -> InputServiceCost {
+        pub fn new(service_name: &str, cost: &str) -> Self {
             InputServiceCost {
                 service_name: String::from(service_name),
                 cost: String::from(cost),
