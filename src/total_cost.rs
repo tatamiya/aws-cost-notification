@@ -9,6 +9,13 @@ struct ParsedTotalCost {
     unit: String,
 }
 
+#[derive(Debug, PartialEq)]
+struct ParsedServiceCost {
+    service_name: String,
+    cost: f32,
+    unit: String,
+}
+
 fn parse_total_cost(res: GetCostAndUsageResponse) -> ParsedTotalCost {
     let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
     let time_period = result_by_time.time_period.as_ref().unwrap();
@@ -45,6 +52,14 @@ fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<
         .ok()
         .unwrap();
     Local.from_local_date(&parsed_start_date)
+}
+
+fn parse_service_costs(res: GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
+    vec![ParsedServiceCost {
+        service_name: String::from("Amazon Simple Storage Service"),
+        cost: 1234.56,
+        unit: String::from("USD"),
+    }]
 }
 
 #[cfg(test)]
@@ -97,5 +112,53 @@ mod total_cost_tests {
         let actual_parsed_total_cost = parse_total_cost(input_response);
 
         assert_eq!(expected_parsed_total_cost, actual_parsed_total_cost);
+    }
+}
+
+#[cfg(test)]
+mod service_cost_tests {
+    use super::*;
+    use rusoto_ce::*;
+    use std::collections::HashMap;
+
+    #[test]
+    fn parse_service_costs_correctly() {
+        let mut input_service_cost = HashMap::new();
+        input_service_cost.insert(
+            String::from("AmortizedCost"),
+            MetricValue {
+                amount: Some(String::from("1234.56")),
+                unit: Some(String::from("USD")),
+            },
+        );
+
+        let input_grouped_cost = vec![Group {
+            keys: Some(vec![String::from("Amazon Simple Storage Service")]),
+            metrics: Some(input_service_cost),
+        }];
+
+        let input_response = GetCostAndUsageResponse {
+            dimension_value_attributes: None,
+            group_definitions: None,
+            next_page_token: None,
+            results_by_time: Some(vec![ResultByTime {
+                estimated: Some(false),
+                groups: Some(input_grouped_cost),
+                time_period: Some(DateInterval {
+                    start: String::from("2021-07-01"),
+                    end: String::from("2021-07-18"),
+                }),
+                total: None,
+            }]),
+        };
+
+        let expected_parsed_service_costs = vec![ParsedServiceCost {
+            service_name: String::from("Amazon Simple Storage Service"),
+            cost: 1234.56,
+            unit: String::from("USD"),
+        }];
+        let actual_parsed_service_costs = parse_service_costs(input_response);
+
+        assert_eq!(expected_parsed_service_costs, actual_parsed_service_costs);
     }
 }
