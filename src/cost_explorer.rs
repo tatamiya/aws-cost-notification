@@ -13,9 +13,9 @@ struct CostExplorerService {
     report_date_range: ReportDateRange,
 }
 impl CostExplorerService {
-    fn new(region: Region, report_date_range: ReportDateRange) -> Self {
+    fn new(client: CostExplorerClient, report_date_range: ReportDateRange) -> Self {
         CostExplorerService {
-            client: CostExplorerClient::new(region),
+            client: client,
             report_date_range: report_date_range,
         }
     }
