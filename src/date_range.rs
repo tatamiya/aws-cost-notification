@@ -39,7 +39,7 @@ mod date_range_tests {
     use rusoto_ce::DateInterval;
 
     #[test]
-    fn middle_of_month() {
+    fn reporting_in_middle_of_month() {
         let input_date = Local.ymd(2021, 7, 18);
 
         let expected_date_range = DateRange {
@@ -53,7 +53,7 @@ mod date_range_tests {
     }
 
     #[test]
-    fn beginning_of_month() {
+    fn reporting_at_beginning_of_month() {
         let input_date = Local.ymd(2021, 7, 1);
 
         let expected_date_range = DateRange {
@@ -67,7 +67,7 @@ mod date_range_tests {
     }
 
     #[test]
-    fn as_interval() {
+    fn convert_into_date_interval_correctly() {
         let input_date_range = DateRange {
             start_date: Local.ymd(2021, 7, 1),
             end_date: Local.ymd(2021, 7, 22),
