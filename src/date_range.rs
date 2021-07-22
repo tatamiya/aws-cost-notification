@@ -2,11 +2,11 @@ use chrono::{Date, Datelike, Local};
 use rusoto_ce::DateInterval;
 
 #[derive(Debug, PartialEq)]
-pub struct DateRange {
+pub struct ReportDateRange {
     start_date: Date<Local>,
     end_date: Date<Local>,
 }
-impl DateRange {
+impl ReportDateRange {
     fn new(reporting_date: Date<Local>) -> Self {
         let first_day_of_month = reporting_date.with_day(1).unwrap();
 
@@ -18,7 +18,7 @@ impl DateRange {
             start_date = first_day_of_month;
         }
 
-        DateRange {
+        ReportDateRange {
             start_date: start_date,
             end_date: reporting_date,
         }
@@ -42,12 +42,12 @@ mod date_range_tests {
     fn reporting_in_middle_of_month() {
         let input_date = Local.ymd(2021, 7, 18);
 
-        let expected_date_range = DateRange {
+        let expected_date_range = ReportDateRange {
             start_date: Local.ymd(2021, 7, 1),
             end_date: Local.ymd(2021, 7, 18),
         };
 
-        let actual_date_range = DateRange::new(input_date);
+        let actual_date_range = ReportDateRange::new(input_date);
 
         assert_eq!(expected_date_range, actual_date_range);
     }
@@ -56,19 +56,19 @@ mod date_range_tests {
     fn reporting_at_beginning_of_month() {
         let input_date = Local.ymd(2021, 7, 1);
 
-        let expected_date_range = DateRange {
+        let expected_date_range = ReportDateRange {
             start_date: Local.ymd(2021, 6, 1),
             end_date: Local.ymd(2021, 7, 1),
         };
 
-        let actual_date_range = DateRange::new(input_date);
+        let actual_date_range = ReportDateRange::new(input_date);
 
         assert_eq!(expected_date_range, actual_date_range);
     }
 
     #[test]
     fn convert_into_date_interval_correctly() {
-        let input_date_range = DateRange {
+        let input_date_range = ReportDateRange {
             start_date: Local.ymd(2021, 7, 1),
             end_date: Local.ymd(2021, 7, 22),
         };
