@@ -1,10 +1,8 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
 use futures::executor::block_on;
 use rusoto_ce::{
-    CostExplorer, CostExplorerClient, GetCostAndUsageRequest, GetCostAndUsageResponse, Group,
-    GroupDefinition,
+    CostExplorer, GetCostAndUsageRequest, GetCostAndUsageResponse, Group, GroupDefinition,
 };
-use rusoto_core::Region;
 
 use crate::date_range::ReportDateRange;
 
