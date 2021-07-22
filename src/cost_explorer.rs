@@ -1,8 +1,7 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
 use futures::executor::block_on;
 use rusoto_ce::{
-    CostExplorer, CostExplorerClient, DateInterval, GetCostAndUsageRequest,
-    GetCostAndUsageResponse, Group,
+    CostExplorer, CostExplorerClient, GetCostAndUsageRequest, GetCostAndUsageResponse, Group,
 };
 use rusoto_core::Region;
 
