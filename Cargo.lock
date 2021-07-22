@@ -22,7 +22,9 @@ name = "aws_cost_notification"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "futures",
  "rusoto_ce",
+ "rusoto_core",
 ]
 
 [[package]]

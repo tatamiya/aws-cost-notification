@@ -2,8 +2,8 @@ use chrono::{Date, Datelike, Local};
 
 #[derive(Debug, PartialEq)]
 pub struct DateRange {
-    start_date: Date<Local>,
-    end_date: Date<Local>,
+    pub start_date: Date<Local>,
+    pub end_date: Date<Local>,
 }
 
 pub fn get_date_range(target_date: Date<Local>) -> DateRange {

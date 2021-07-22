@@ -1,5 +1,50 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
-use rusoto_ce::{GetCostAndUsageResponse, Group};
+use futures::executor::block_on;
+use rusoto_ce::{
+    CostExplorer, CostExplorerClient, DateInterval, GetCostAndUsageRequest,
+    GetCostAndUsageResponse, Group,
+};
+use rusoto_core::Region;
+
+use crate::date_range::DateRange;
+
+struct CostExplorerService {
+    client: CostExplorerClient,
+    report_date_range: DateRange,
+}
+impl CostExplorerService {
+    fn new(region: Region, report_date_range: DateRange) -> CostExplorerService {
+        CostExplorerService {
+            client: CostExplorerClient::new(region),
+            report_date_range: report_date_range,
+        }
+    }
+
+    fn request_total_cost(self) -> ParsedTotalCost {
+        let request = GetCostAndUsageRequest {
+            filter: None,
+            granularity: String::from("MONTHLY"),
+            group_by: None,
+            metrics: vec![String::from("AmortizedCost")],
+            next_page_token: None,
+            time_period: DateInterval {
+                end: self
+                    .report_date_range
+                    .end_date
+                    .format("%Y-%m-%d")
+                    .to_string(),
+                start: self
+                    .report_date_range
+                    .start_date
+                    .format("%Y-%m-%d")
+                    .to_string(),
+            },
+        };
+
+        let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
+        ParsedTotalCost::from_response(&res)
+    }
+}
 
 #[derive(Debug, PartialEq)]
 struct ParsedTotalCost {
