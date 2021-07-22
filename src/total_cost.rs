@@ -8,43 +8,44 @@ struct ParsedTotalCost {
     cost: f32,
     unit: String,
 }
+impl ParsedTotalCost {
+    fn new(res: &GetCostAndUsageResponse) -> ParsedTotalCost {
+        let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
+        let time_period = result_by_time.time_period.as_ref().unwrap();
+
+        let parsed_start_date = parse_timestamp_into_local_date(&time_period.start).unwrap();
+        let parsed_end_date = parse_timestamp_into_local_date(&time_period.end).unwrap();
+
+        let amortized_cost = result_by_time
+            .total
+            .as_ref()
+            .unwrap()
+            .get("AmortizedCost")
+            .unwrap();
+
+        let parsed_cost = amortized_cost
+            .amount
+            .as_ref()
+            .unwrap()
+            .parse::<f32>()
+            .unwrap();
+
+        let parsed_cost_unit = amortized_cost.unit.as_ref().unwrap().to_string();
+
+        ParsedTotalCost {
+            start_date: parsed_start_date,
+            end_date: parsed_end_date,
+            cost: parsed_cost,
+            unit: parsed_cost_unit,
+        }
+    }
+}
 
 #[derive(Debug, PartialEq)]
 struct ParsedServiceCost {
     service_name: String,
     cost: f32,
     unit: String,
-}
-
-fn parse_total_cost(res: GetCostAndUsageResponse) -> ParsedTotalCost {
-    let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
-    let time_period = result_by_time.time_period.as_ref().unwrap();
-
-    let parsed_start_date = parse_timestamp_into_local_date(&time_period.start).unwrap();
-    let parsed_end_date = parse_timestamp_into_local_date(&time_period.end).unwrap();
-
-    let amortized_cost = result_by_time
-        .total
-        .as_ref()
-        .unwrap()
-        .get("AmortizedCost")
-        .unwrap();
-
-    let parsed_cost = amortized_cost
-        .amount
-        .as_ref()
-        .unwrap()
-        .parse::<f32>()
-        .unwrap();
-
-    let parsed_cost_unit = amortized_cost.unit.as_ref().unwrap().to_string();
-
-    ParsedTotalCost {
-        start_date: parsed_start_date,
-        end_date: parsed_end_date,
-        cost: parsed_cost,
-        unit: parsed_cost_unit,
-    }
 }
 
 fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<Local>> {
@@ -159,7 +160,7 @@ mod tests {
             unit: String::from("USD"),
         };
 
-        let actual_parsed_total_cost = parse_total_cost(input_response);
+        let actual_parsed_total_cost = ParsedTotalCost::new(&input_response);
 
         assert_eq!(expected_parsed_total_cost, actual_parsed_total_cost);
     }
