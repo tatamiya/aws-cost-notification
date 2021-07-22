@@ -66,7 +66,7 @@ impl ParsedServiceCost {
         ParsedServiceCost {
             service_name: service_name.to_string(),
             cost: cost,
-            unit: unit.to_string(),
+            unit: unit,
         }
     }
     fn from_response(res: &GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
