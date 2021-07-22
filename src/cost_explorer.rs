@@ -8,12 +8,12 @@ use rusoto_core::Region;
 
 use crate::date_range::ReportDateRange;
 
-struct CostExplorerService {
-    client: CostExplorerClient,
+struct CostExplorerService<T: CostExplorer> {
+    client: T,
     report_date_range: ReportDateRange,
 }
-impl CostExplorerService {
-    fn new(client: CostExplorerClient, report_date_range: ReportDateRange) -> Self {
+impl<T: CostExplorer> CostExplorerService<T> {
+    fn new(client: T, report_date_range: ReportDateRange) -> Self {
         CostExplorerService {
             client: client,
             report_date_range: report_date_range,
