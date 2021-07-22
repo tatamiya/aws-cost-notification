@@ -38,10 +38,10 @@ impl CostExplorerService {
         let request = GetCostAndUsageRequest {
             filter: None,
             granularity: String::from("MONTHLY"),
-            group_by: vec![GroupDefinition {
+            group_by: Some(vec![GroupDefinition {
                 type_: Some("DIMENSION".to_string()),
                 key: Some("SERVICE".to_string()),
-            }],
+            }]),
             metrics: vec![String::from("AmortizedCost")],
             next_page_token: None,
             time_period: self.report_date_range.as_date_interval(),
