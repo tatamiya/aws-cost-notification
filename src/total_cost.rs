@@ -62,26 +62,22 @@ fn parse_service_costs(res: GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
     }]
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+mod test_helpers {
     use rusoto_ce::*;
     use std::collections::HashMap;
 
-    #[test]
-    fn parse_timestamp_into_local_date_correctly() {
-        let input_timestamp = "2021-07-22";
-        let expected_parsed_date = Local.ymd(2021, 7, 22);
-
-        let actual_parsed_date = parse_timestamp_into_local_date(input_timestamp).unwrap();
-        assert_eq!(expected_parsed_date, actual_parsed_date);
-    }
-
-    struct InputServiceCost {
+    pub struct InputServiceCost {
         service_name: String,
         cost: String,
     }
     impl InputServiceCost {
+        pub fn new(service_name: &str, cost: &str) -> InputServiceCost {
+            InputServiceCost {
+                service_name: String::from(service_name),
+                cost: String::from(cost),
+            }
+        }
+
         fn as_group(&self) -> Group {
             let mut metrics = HashMap::new();
             metrics.insert(
@@ -98,7 +94,7 @@ mod tests {
         }
     }
 
-    fn prepare_sample_response(
+    pub fn prepare_sample_response(
         date_interval: Option<DateInterval>,
         total_cost: Option<String>,
         service_costs: Option<Vec<InputServiceCost>>,
@@ -127,6 +123,22 @@ mod tests {
                 total: Some(total),
             }]),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::test_helpers::*;
+    use super::*;
+    use rusoto_ce::*;
+
+    #[test]
+    fn parse_timestamp_into_local_date_correctly() {
+        let input_timestamp = "2021-07-22";
+        let expected_parsed_date = Local.ymd(2021, 7, 22);
+
+        let actual_parsed_date = parse_timestamp_into_local_date(input_timestamp).unwrap();
+        assert_eq!(expected_parsed_date, actual_parsed_date);
     }
 
     #[test]
@@ -157,10 +169,10 @@ mod tests {
         let input_response: GetCostAndUsageResponse = prepare_sample_response(
             None,
             None,
-            Some(vec![InputServiceCost {
-                service_name: String::from("Amazon Simple Storage Service"),
-                cost: String::from("1234.56"),
-            }]),
+            Some(vec![InputServiceCost::new(
+                "Amazon Simple Storage Service",
+                "1234.56",
+            )]),
         );
         let expected_parsed_service_costs = vec![ParsedServiceCost {
             service_name: String::from("Amazon Simple Storage Service"),
