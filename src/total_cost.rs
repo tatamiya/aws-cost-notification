@@ -63,7 +63,7 @@ mod total_cost_tests {
     }
 
     #[test]
-    fn parse_response_correctly() {
+    fn parse_total_cost_correctly() {
         let mut input_total_cost = HashMap::new();
         input_total_cost.insert(
             String::from("AmortizedCost"),
