@@ -1,5 +1,5 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
-use rusoto_ce::GetCostAndUsageResponse;
+use rusoto_ce::{GetCostAndUsageResponse, Group};
 
 #[derive(Debug, PartialEq)]
 struct ParsedTotalCost {
@@ -48,12 +48,34 @@ struct ParsedServiceCost {
     unit: String,
 }
 impl ParsedServiceCost {
+    fn from_group(group: &Group) -> ParsedServiceCost {
+        let service_name = &group.keys.as_ref().unwrap()[0];
+        let amortized_cost = group
+            .metrics
+            .as_ref()
+            .unwrap()
+            .get("AmortizedCost")
+            .unwrap();
+        let cost = amortized_cost
+            .amount
+            .as_ref()
+            .unwrap()
+            .parse::<f32>()
+            .unwrap();
+        let unit = amortized_cost.unit.as_ref().unwrap().to_string();
+        ParsedServiceCost {
+            service_name: service_name.to_string(),
+            cost: cost,
+            unit: unit.to_string(),
+        }
+    }
     fn from_response(res: &GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
-        vec![ParsedServiceCost {
-            service_name: String::from("Amazon Simple Storage Service"),
-            cost: 1234.56,
-            unit: String::from("USD"),
-        }]
+        let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
+        let groups = result_by_time.groups.as_ref().unwrap();
+        groups
+            .iter()
+            .map(|x| ParsedServiceCost::from_group(&x))
+            .collect()
     }
 }
 
