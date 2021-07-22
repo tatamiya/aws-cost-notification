@@ -9,7 +9,7 @@ struct ParsedTotalCost {
     unit: String,
 }
 impl ParsedTotalCost {
-    fn new(res: &GetCostAndUsageResponse) -> ParsedTotalCost {
+    fn from_response(res: &GetCostAndUsageResponse) -> ParsedTotalCost {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
         let time_period = result_by_time.time_period.as_ref().unwrap();
 
@@ -48,7 +48,7 @@ struct ParsedServiceCost {
     unit: String,
 }
 impl ParsedServiceCost {
-    fn new(res: &GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
+    fn from_response(res: &GetCostAndUsageResponse) -> Vec<ParsedServiceCost> {
         vec![ParsedServiceCost {
             service_name: String::from("Amazon Simple Storage Service"),
             cost: 1234.56,
@@ -161,7 +161,7 @@ mod tests {
             unit: String::from("USD"),
         };
 
-        let actual_parsed_total_cost = ParsedTotalCost::new(&input_response);
+        let actual_parsed_total_cost = ParsedTotalCost::from_response(&input_response);
 
         assert_eq!(expected_parsed_total_cost, actual_parsed_total_cost);
     }
@@ -181,7 +181,7 @@ mod tests {
             cost: 1234.56,
             unit: String::from("USD"),
         }];
-        let actual_parsed_service_costs = ParsedServiceCost::new(&input_response);
+        let actual_parsed_service_costs = ParsedServiceCost::from_response(&input_response);
 
         assert_eq!(expected_parsed_service_costs, actual_parsed_service_costs);
     }
