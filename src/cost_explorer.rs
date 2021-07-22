@@ -2,6 +2,7 @@ use chrono::{Date, Local, NaiveDate, TimeZone};
 use futures::executor::block_on;
 use rusoto_ce::{
     CostExplorer, CostExplorerClient, GetCostAndUsageRequest, GetCostAndUsageResponse, Group,
+    GroupDefinition,
 };
 use rusoto_core::Region;
 
@@ -31,6 +32,23 @@ impl CostExplorerService {
 
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
         ParsedTotalCost::from_response(&res)
+    }
+
+    fn request_service_costs(self) -> Vec<ParsedServiceCost> {
+        let request = GetCostAndUsageRequest {
+            filter: None,
+            granularity: String::from("MONTHLY"),
+            group_by: vec![GroupDefinition {
+                type_: Some("DIMENSION".to_string()),
+                key: Some("SERVICE".to_string()),
+            }],
+            metrics: vec![String::from("AmortizedCost")],
+            next_page_token: None,
+            time_period: self.report_date_range.as_date_interval(),
+        };
+
+        let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
+        ParsedServiceCost::from_response(&res)
     }
 }
 
