@@ -1,4 +1,4 @@
-use crate::cost_response_parser::{Cost, ParsedServiceCost, ParsedTotalCost, ReportedDateRange};
+use crate::cost_response_parser::{Cost, ParsedServiceCost, ReportedDateRange, TotalCost};
 use chrono::Datelike;
 use std::fmt;
 
@@ -27,7 +27,7 @@ impl ParsedServiceCost {
     }
 }
 
-impl ParsedTotalCost {
+impl TotalCost {
     fn to_message_header(&self) -> String {
         format!("{}の請求額は、{}です。", self.date_range, self.cost)
     }
@@ -38,7 +38,7 @@ struct NotificationMessage {
     body: String,
 }
 impl NotificationMessage {
-    fn new(total_cost: ParsedTotalCost, service_costs: Vec<ParsedServiceCost>) -> Self {
+    fn new(total_cost: TotalCost, service_costs: Vec<ParsedServiceCost>) -> Self {
         NotificationMessage {
             header: total_cost.to_message_header(),
             body: service_costs
@@ -86,7 +86,7 @@ mod test_build_message {
 
     #[test]
     fn convert_total_cost_into_message_header_correctly() {
-        let sample_total_cost = ParsedTotalCost {
+        let sample_total_cost = TotalCost {
             date_range: ReportedDateRange {
                 start_date: Local.ymd(2021, 7, 1),
                 end_date: Local.ymd(2021, 7, 11),
@@ -118,7 +118,7 @@ mod test_build_message {
 
     #[test]
     fn construct_notification_message_correctly() {
-        let sample_total_cost = ParsedTotalCost {
+        let sample_total_cost = TotalCost {
             date_range: ReportedDateRange {
                 start_date: Local.ymd(2021, 7, 1),
                 end_date: Local.ymd(2021, 7, 11),

@@ -1,7 +1,7 @@
 use futures::executor::block_on;
 use rusoto_ce::{GetCostAndUsageRequest, GroupDefinition};
 
-use crate::cost_response_parser::{ParsedServiceCost, ParsedTotalCost};
+use crate::cost_response_parser::{ParsedServiceCost, TotalCost};
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
 
@@ -17,12 +17,12 @@ impl<T: GetCostAndUsage> CostExplorerService<T> {
         }
     }
 
-    fn request_total_cost(self) -> ParsedTotalCost {
+    fn request_total_cost(self) -> TotalCost {
         let request: GetCostAndUsageRequest =
             build_cost_and_usage_request(self.report_date_range, true);
 
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
-        ParsedTotalCost::from_response(&res)
+        TotalCost::from_response(&res)
     }
 
     fn request_service_costs(self) -> Vec<ParsedServiceCost> {
@@ -72,7 +72,7 @@ mod test_cost_explorer_service {
         let report_date_range = ReportDateRange::new(Local.ymd(2021, 7, 23));
         let explorer = CostExplorerService::new(client_stub, report_date_range);
 
-        let expected_total_cost = ParsedTotalCost {
+        let expected_total_cost = TotalCost {
             date_range: ReportedDateRange {
                 start_date: Local.ymd(2021, 7, 1),
                 end_date: Local.ymd(2021, 7, 23),

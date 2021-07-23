@@ -14,11 +14,11 @@ pub struct ReportedDateRange {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct ParsedTotalCost {
+pub struct TotalCost {
     pub date_range: ReportedDateRange,
     pub cost: Cost,
 }
-impl ParsedTotalCost {
+impl TotalCost {
     pub fn from_response(res: &GetCostAndUsageResponse) -> Self {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
         let time_period = result_by_time.time_period.as_ref().unwrap();
@@ -42,7 +42,7 @@ impl ParsedTotalCost {
 
         let parsed_cost_unit = amortized_cost.unit.as_ref().unwrap().to_string();
 
-        ParsedTotalCost {
+        TotalCost {
             date_range: ReportedDateRange {
                 start_date: parsed_start_date,
                 end_date: parsed_end_date,
@@ -129,7 +129,7 @@ mod test_parsers {
             None,
         );
 
-        let expected_parsed_total_cost = ParsedTotalCost {
+        let expected_parsed_total_cost = TotalCost {
             date_range: ReportedDateRange {
                 start_date: Local.ymd(2021, 7, 1),
                 end_date: Local.ymd(2021, 7, 18),
@@ -140,7 +140,7 @@ mod test_parsers {
             },
         };
 
-        let actual_parsed_total_cost = ParsedTotalCost::from_response(&input_response);
+        let actual_parsed_total_cost = TotalCost::from_response(&input_response);
 
         assert_eq!(expected_parsed_total_cost, actual_parsed_total_cost);
     }
