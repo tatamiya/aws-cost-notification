@@ -1,6 +1,7 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
 use futures::executor::block_on;
 use rusoto_ce::{GetCostAndUsageRequest, GetCostAndUsageResponse, Group, GroupDefinition};
+use std::fmt;
 
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
@@ -58,6 +59,11 @@ fn build_cost_and_usage_request(
 struct Cost {
     amount: f32,
     unit: String,
+}
+impl fmt::Display for Cost {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.2} {}", self.amount, self.unit)
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -306,6 +312,20 @@ mod test_cost_explorer_service {
         let actual_service_costs = explorer.request_service_costs();
 
         assert_eq!(expected_service_costs, actual_service_costs);
+    }
+}
+
+#[cfg(test)]
+mod test_cost_representation {
+    use super::Cost;
+
+    #[test]
+    fn display_correctly() {
+        let input_cost = Cost {
+            amount: 132.2345,
+            unit: "USD".to_string(),
+        };
+        assert_eq!("132.23 USD", format!("{}", input_cost));
     }
 }
 
