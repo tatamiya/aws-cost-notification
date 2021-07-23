@@ -7,7 +7,7 @@ pub struct ReportDateRange {
     end_date: Date<Local>,
 }
 impl ReportDateRange {
-    fn new(reporting_date: Date<Local>) -> Self {
+    pub fn new(reporting_date: Date<Local>) -> Self {
         let first_day_of_month = reporting_date.with_day(1).unwrap();
 
         let start_date: Date<Local>;

@@ -167,7 +167,10 @@ fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<
 }
 
 mod test_helpers {
+    use super::GetCostAndUsage;
+    use async_trait::async_trait;
     use rusoto_ce::*;
+    use rusoto_core::RusotoError;
     use std::collections::HashMap;
 
     pub struct InputServiceCost {
@@ -226,6 +229,34 @@ mod test_helpers {
                 time_period: date_interval,
                 total: Some(total),
             }]),
+        }
+    }
+
+    pub struct CostAndUsageClientStub {}
+    #[async_trait]
+    impl GetCostAndUsage for CostAndUsageClientStub {
+        async fn get_cost_and_usage(
+            &self,
+            input: GetCostAndUsageRequest,
+        ) -> Result<GetCostAndUsageResponse, RusotoError<GetCostAndUsageError>> {
+            let service_costs: Option<Vec<InputServiceCost>>;
+            let total_cost: Option<String>;
+            match input.group_by {
+                Some(_) => {
+                    service_costs = Some(vec![
+                        InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
+                        InputServiceCost::new("Amazon Elastic Compute Cloud", "31415.92"),
+                    ]);
+                    total_cost = None;
+                }
+                None => {
+                    service_costs = None;
+                    total_cost = Some(String::from("1234.56"));
+                }
+            }
+            let response: GetCostAndUsageResponse =
+                prepare_sample_response(Some(input.time_period), total_cost, service_costs);
+            Ok(response)
         }
     }
 }
@@ -293,5 +324,55 @@ mod tests {
         let actual_parsed_service_costs = ParsedServiceCost::from_response(&input_response);
 
         assert_eq!(expected_parsed_service_costs, actual_parsed_service_costs);
+    }
+}
+
+#[cfg(test)]
+mod test_cost_explorer_service {
+    use super::test_helpers::*;
+    use super::*;
+    use crate::date_range::ReportDateRange;
+    use chrono::{Local, TimeZone};
+
+    #[test]
+    fn request_total_cost_correctly() {
+        let client_stub = CostAndUsageClientStub {};
+        let report_date_range = ReportDateRange::new(Local.ymd(2021, 7, 23));
+        let explorer = CostExplorerService::new(client_stub, report_date_range);
+
+        let expected_total_cost = ParsedTotalCost {
+            start_date: Local.ymd(2021, 7, 1),
+            end_date: Local.ymd(2021, 7, 23),
+            cost: 1234.56,
+            unit: String::from("USD"),
+        };
+
+        let actual_total_cost = explorer.request_total_cost();
+
+        assert_eq!(expected_total_cost, actual_total_cost);
+    }
+
+    #[test]
+    fn request_service_costs_correctly() {
+        let client_stub = CostAndUsageClientStub {};
+        let report_date_range = ReportDateRange::new(Local.ymd(2021, 7, 23));
+        let explorer = CostExplorerService::new(client_stub, report_date_range);
+
+        let expected_service_costs = vec![
+            ParsedServiceCost {
+                service_name: String::from("Amazon Simple Storage Service"),
+                cost: 1234.56,
+                unit: String::from("USD"),
+            },
+            ParsedServiceCost {
+                service_name: String::from("Amazon Elastic Compute Cloud"),
+                cost: 31415.92,
+                unit: String::from("USD"),
+            },
+        ];
+
+        let actual_service_costs = explorer.request_service_costs();
+
+        assert_eq!(expected_service_costs, actual_service_costs);
     }
 }
