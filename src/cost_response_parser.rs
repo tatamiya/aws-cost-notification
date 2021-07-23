@@ -1,9 +1,5 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
-use futures::executor::block_on;
-use rusoto_ce::{GetCostAndUsageRequest, GetCostAndUsageResponse, Group, GroupDefinition};
-
-use crate::cost_usage_client::GetCostAndUsage;
-use crate::date_range::ReportDateRange;
+use rusoto_ce::{GetCostAndUsageResponse, Group};
 
 #[derive(Debug, PartialEq)]
 pub struct Cost {

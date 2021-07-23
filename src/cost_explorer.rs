@@ -1,8 +1,7 @@
-use chrono::{Date, Local, NaiveDate, TimeZone};
 use futures::executor::block_on;
-use rusoto_ce::{GetCostAndUsageRequest, GetCostAndUsageResponse, Group, GroupDefinition};
+use rusoto_ce::{GetCostAndUsageRequest, GroupDefinition};
 
-use crate::cost_response_parser::{Cost, ParsedServiceCost, ParsedTotalCost, ReportedDateRange};
+use crate::cost_response_parser::{ParsedServiceCost, ParsedTotalCost};
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
 
@@ -155,6 +154,7 @@ mod test_helpers {
 mod test_cost_explorer_service {
     use super::test_helpers::*;
     use super::*;
+    use crate::cost_response_parser::{Cost, ReportedDateRange};
     use crate::date_range::ReportDateRange;
     use chrono::{Local, TimeZone};
 
