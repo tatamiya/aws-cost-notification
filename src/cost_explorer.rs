@@ -67,9 +67,14 @@ impl fmt::Display for Cost {
 }
 
 #[derive(Debug, PartialEq)]
-struct ParsedTotalCost {
+struct ReportedDateRange {
     start_date: Date<Local>,
     end_date: Date<Local>,
+}
+
+#[derive(Debug, PartialEq)]
+struct ParsedTotalCost {
+    date_range: ReportedDateRange,
     cost: Cost,
 }
 
@@ -98,8 +103,10 @@ impl ParsedTotalCost {
         let parsed_cost_unit = amortized_cost.unit.as_ref().unwrap().to_string();
 
         ParsedTotalCost {
-            start_date: parsed_start_date,
-            end_date: parsed_end_date,
+            date_range: ReportedDateRange {
+                start_date: parsed_start_date,
+                end_date: parsed_end_date,
+            },
             cost: Cost {
                 amount: parsed_cost,
                 unit: parsed_cost_unit,
@@ -267,8 +274,10 @@ mod test_cost_explorer_service {
         let explorer = CostExplorerService::new(client_stub, report_date_range);
 
         let expected_total_cost = ParsedTotalCost {
-            start_date: Local.ymd(2021, 7, 1),
-            end_date: Local.ymd(2021, 7, 23),
+            date_range: ReportedDateRange {
+                start_date: Local.ymd(2021, 7, 1),
+                end_date: Local.ymd(2021, 7, 23),
+            },
             cost: Cost {
                 amount: 1234.56,
                 unit: String::from("USD"),
@@ -404,8 +413,10 @@ mod test_parsers {
         );
 
         let expected_parsed_total_cost = ParsedTotalCost {
-            start_date: Local.ymd(2021, 7, 1),
-            end_date: Local.ymd(2021, 7, 18),
+            date_range: ReportedDateRange {
+                start_date: Local.ymd(2021, 7, 1),
+                end_date: Local.ymd(2021, 7, 18),
+            },
             cost: Cost {
                 amount: 1234.56,
                 unit: String::from("USD"),
