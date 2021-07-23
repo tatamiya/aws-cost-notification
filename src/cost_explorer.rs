@@ -56,9 +56,9 @@ fn build_cost_and_usage_request(
 }
 
 #[derive(Debug, PartialEq)]
-struct Cost {
-    amount: f32,
-    unit: String,
+pub struct Cost {
+    pub amount: f32,
+    pub unit: String,
 }
 impl fmt::Display for Cost {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -67,9 +67,9 @@ impl fmt::Display for Cost {
 }
 
 #[derive(Debug, PartialEq)]
-struct ReportedDateRange {
-    start_date: Date<Local>,
-    end_date: Date<Local>,
+pub struct ReportedDateRange {
+    pub start_date: Date<Local>,
+    pub end_date: Date<Local>,
 }
 impl fmt::Display for ReportedDateRange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -85,9 +85,9 @@ impl fmt::Display for ReportedDateRange {
 }
 
 #[derive(Debug, PartialEq)]
-struct ParsedTotalCost {
-    date_range: ReportedDateRange,
-    cost: Cost,
+pub struct ParsedTotalCost {
+    pub date_range: ReportedDateRange,
+    pub cost: Cost,
 }
 
 impl ParsedTotalCost {
@@ -128,9 +128,9 @@ impl ParsedTotalCost {
 }
 
 #[derive(Debug, PartialEq)]
-struct ParsedServiceCost {
-    service_name: String,
-    cost: Cost,
+pub struct ParsedServiceCost {
+    pub service_name: String,
+    pub cost: Cost,
 }
 impl ParsedServiceCost {
     fn from_group(group: &Group) -> Self {
