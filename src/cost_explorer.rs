@@ -1,7 +1,6 @@
-use chrono::{Date, Datelike, Local, NaiveDate, TimeZone};
+use chrono::{Date, Local, NaiveDate, TimeZone};
 use futures::executor::block_on;
 use rusoto_ce::{GetCostAndUsageRequest, GetCostAndUsageResponse, Group, GroupDefinition};
-use std::fmt;
 
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
@@ -60,28 +59,11 @@ pub struct Cost {
     pub amount: f32,
     pub unit: String,
 }
-impl fmt::Display for Cost {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:.2} {}", self.amount, self.unit)
-    }
-}
 
 #[derive(Debug, PartialEq)]
 pub struct ReportedDateRange {
     pub start_date: Date<Local>,
     pub end_date: Date<Local>,
-}
-impl fmt::Display for ReportedDateRange {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{:02}/{:02}~{:02}/{:02}",
-            self.start_date.month(),
-            self.start_date.day(),
-            self.end_date.month(),
-            self.end_date.day(),
-        )
-    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -333,35 +315,6 @@ mod test_cost_explorer_service {
         let actual_service_costs = explorer.request_service_costs();
 
         assert_eq!(expected_service_costs, actual_service_costs);
-    }
-}
-
-#[cfg(test)]
-mod test_cost_representation {
-    use super::Cost;
-
-    #[test]
-    fn display_correctly() {
-        let input_cost = Cost {
-            amount: 132.2345,
-            unit: "USD".to_string(),
-        };
-        assert_eq!("132.23 USD", format!("{}", input_cost));
-    }
-}
-
-#[cfg(test)]
-mod test_date_range_representation {
-    use super::ReportedDateRange;
-    use chrono::{Local, TimeZone};
-
-    #[test]
-    fn test_display_correctly() {
-        let sample_date_range = ReportedDateRange {
-            start_date: Local.ymd(2021, 7, 1),
-            end_date: Local.ymd(2021, 7, 23),
-        };
-        assert_eq!("07/01~07/23", format!("{}", sample_date_range))
     }
 }
 

@@ -1,4 +1,25 @@
-use crate::cost_explorer::{ParsedServiceCost, ParsedTotalCost};
+use crate::cost_explorer::{Cost, ParsedServiceCost, ParsedTotalCost, ReportedDateRange};
+use chrono::Datelike;
+use std::fmt;
+
+impl fmt::Display for Cost {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:.2} {}", self.amount, self.unit)
+    }
+}
+
+impl fmt::Display for ReportedDateRange {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{:02}/{:02}~{:02}/{:02}",
+            self.start_date.month(),
+            self.start_date.day(),
+            self.end_date.month(),
+            self.end_date.day(),
+        )
+    }
+}
 
 impl ParsedServiceCost {
     fn to_message_line(&self) -> String {
@@ -29,6 +50,34 @@ impl NotificationMessage {
     }
 }
 
+#[cfg(test)]
+mod test_cost_representation {
+    use crate::cost_explorer::Cost;
+
+    #[test]
+    fn display_correctly() {
+        let input_cost = Cost {
+            amount: 132.2345,
+            unit: "USD".to_string(),
+        };
+        assert_eq!("132.23 USD", format!("{}", input_cost));
+    }
+}
+
+#[cfg(test)]
+mod test_date_range_representation {
+    use crate::cost_explorer::ReportedDateRange;
+    use chrono::{Local, TimeZone};
+
+    #[test]
+    fn test_display_correctly() {
+        let sample_date_range = ReportedDateRange {
+            start_date: Local.ymd(2021, 7, 1),
+            end_date: Local.ymd(2021, 7, 23),
+        };
+        assert_eq!("07/01~07/23", format!("{}", sample_date_range))
+    }
+}
 #[cfg(test)]
 mod test_build_message {
     use super::*;
