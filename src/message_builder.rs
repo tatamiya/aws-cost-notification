@@ -33,9 +33,9 @@ impl TotalCost {
     }
 }
 
-struct NotificationMessage {
-    header: String,
-    body: String,
+pub struct NotificationMessage {
+    pub header: String,
+    pub body: String,
 }
 impl NotificationMessage {
     fn new(total_cost: TotalCost, service_costs: Vec<ServiceCost>) -> Self {

@@ -26,6 +26,7 @@ dependencies = [
  "futures",
  "rusoto_ce",
  "rusoto_core",
+ "serde_json",
 ]
 
 [[package]]
