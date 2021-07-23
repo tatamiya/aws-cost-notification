@@ -18,7 +18,6 @@ pub struct ParsedTotalCost {
     pub date_range: ReportedDateRange,
     pub cost: Cost,
 }
-
 impl ParsedTotalCost {
     pub fn from_response(res: &GetCostAndUsageResponse) -> Self {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
