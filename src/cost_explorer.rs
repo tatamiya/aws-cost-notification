@@ -18,9 +18,9 @@ fn build_cost_and_usage_request(
     };
     GetCostAndUsageRequest {
         filter: None,
-        granularity: String::from("MONTHLY"),
+        granularity: "MONTHLY".to_string(),
         group_by: group_by,
-        metrics: vec![String::from("AmortizedCost")],
+        metrics: vec!["AmortizedCost".to_string()],
         next_page_token: None,
         time_period: report_date_range.as_date_interval(),
     }
