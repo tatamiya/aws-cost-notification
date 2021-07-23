@@ -116,7 +116,7 @@ impl ParsedServiceCost {
             .unwrap()
             .get("AmortizedCost")
             .unwrap();
-        let cost = amortized_cost
+        let amount = amortized_cost
             .amount
             .as_ref()
             .unwrap()
@@ -126,7 +126,7 @@ impl ParsedServiceCost {
         ParsedServiceCost {
             service_name: service_name.to_string(),
             cost: Cost {
-                amount: cost,
+                amount: amount,
                 unit: unit,
             },
         }
