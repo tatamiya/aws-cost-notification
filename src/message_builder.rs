@@ -1,4 +1,4 @@
-use crate::cost_explorer::{Cost, ParsedServiceCost, ParsedTotalCost, ReportedDateRange};
+use crate::cost_response_parser::{Cost, ParsedServiceCost, ParsedTotalCost, ReportedDateRange};
 use chrono::Datelike;
 use std::fmt;
 
@@ -52,7 +52,7 @@ impl NotificationMessage {
 
 #[cfg(test)]
 mod test_cost_representation {
-    use crate::cost_explorer::Cost;
+    use crate::cost_response_parser::Cost;
 
     #[test]
     fn display_correctly() {
@@ -66,7 +66,7 @@ mod test_cost_representation {
 
 #[cfg(test)]
 mod test_date_range_representation {
-    use crate::cost_explorer::ReportedDateRange;
+    use crate::cost_response_parser::ReportedDateRange;
     use chrono::{Local, TimeZone};
 
     #[test]
@@ -81,7 +81,7 @@ mod test_date_range_representation {
 #[cfg(test)]
 mod test_build_message {
     use super::*;
-    use crate::cost_explorer::{Cost, ReportedDateRange};
+    use crate::cost_response_parser::{Cost, ReportedDateRange};
     use chrono::{Local, TimeZone};
 
     #[test]
