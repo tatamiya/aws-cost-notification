@@ -1,6 +1,5 @@
 use rusoto_ce::{
     CostExplorerClient, GetCostAndUsageError, GetCostAndUsageRequest, GetCostAndUsageResponse,
-    Group, GroupDefinition,
 };
 use rusoto_core::{Region, RusotoError};
 
