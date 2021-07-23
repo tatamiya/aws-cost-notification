@@ -55,12 +55,18 @@ fn build_cost_and_usage_request(
 }
 
 #[derive(Debug, PartialEq)]
+struct Cost {
+    amount: f32,
+    unit: String,
+}
+
+#[derive(Debug, PartialEq)]
 struct ParsedTotalCost {
     start_date: Date<Local>,
     end_date: Date<Local>,
-    cost: f32,
-    unit: String,
+    cost: Cost,
 }
+
 impl ParsedTotalCost {
     fn from_response(res: &GetCostAndUsageResponse) -> Self {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
@@ -88,8 +94,10 @@ impl ParsedTotalCost {
         ParsedTotalCost {
             start_date: parsed_start_date,
             end_date: parsed_end_date,
-            cost: parsed_cost,
-            unit: parsed_cost_unit,
+            cost: Cost {
+                amount: parsed_cost,
+                unit: parsed_cost_unit,
+            },
         }
     }
 }
@@ -97,8 +105,7 @@ impl ParsedTotalCost {
 #[derive(Debug, PartialEq)]
 struct ParsedServiceCost {
     service_name: String,
-    cost: f32,
-    unit: String,
+    cost: Cost,
 }
 impl ParsedServiceCost {
     fn from_group(group: &Group) -> Self {
@@ -118,8 +125,10 @@ impl ParsedServiceCost {
         let unit = amortized_cost.unit.as_ref().unwrap().to_string();
         ParsedServiceCost {
             service_name: service_name.to_string(),
-            cost: cost,
-            unit: unit,
+            cost: Cost {
+                amount: cost,
+                unit: unit,
+            },
         }
     }
     fn from_response(res: &GetCostAndUsageResponse) -> Vec<Self> {
@@ -254,8 +263,10 @@ mod test_cost_explorer_service {
         let expected_total_cost = ParsedTotalCost {
             start_date: Local.ymd(2021, 7, 1),
             end_date: Local.ymd(2021, 7, 23),
-            cost: 1234.56,
-            unit: String::from("USD"),
+            cost: Cost {
+                amount: 1234.56,
+                unit: String::from("USD"),
+            },
         };
 
         let actual_total_cost = explorer.request_total_cost();
@@ -278,13 +289,17 @@ mod test_cost_explorer_service {
         let expected_service_costs = vec![
             ParsedServiceCost {
                 service_name: String::from("Amazon Simple Storage Service"),
-                cost: 1234.56,
-                unit: String::from("USD"),
+                cost: Cost {
+                    amount: 1234.56,
+                    unit: String::from("USD"),
+                },
             },
             ParsedServiceCost {
                 service_name: String::from("Amazon Elastic Compute Cloud"),
-                cost: 31415.92,
-                unit: String::from("USD"),
+                cost: Cost {
+                    amount: 31415.92,
+                    unit: String::from("USD"),
+                },
             },
         ];
 
@@ -371,8 +386,10 @@ mod test_parsers {
         let expected_parsed_total_cost = ParsedTotalCost {
             start_date: Local.ymd(2021, 7, 1),
             end_date: Local.ymd(2021, 7, 18),
-            cost: 1234.56,
-            unit: String::from("USD"),
+            cost: Cost {
+                amount: 1234.56,
+                unit: String::from("USD"),
+            },
         };
 
         let actual_parsed_total_cost = ParsedTotalCost::from_response(&input_response);
@@ -393,13 +410,17 @@ mod test_parsers {
         let expected_parsed_service_costs = vec![
             ParsedServiceCost {
                 service_name: String::from("Amazon Simple Storage Service"),
-                cost: 1234.56,
-                unit: String::from("USD"),
+                cost: Cost {
+                    amount: 1234.56,
+                    unit: String::from("USD"),
+                },
             },
             ParsedServiceCost {
                 service_name: String::from("Amazon Elastic Compute Cloud"),
-                cost: 31415.92,
-                unit: String::from("USD"),
+                cost: Cost {
+                    amount: 31415.92,
+                    unit: String::from("USD"),
+                },
             },
         ];
         let actual_parsed_service_costs = ParsedServiceCost::from_response(&input_response);
