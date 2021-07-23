@@ -93,6 +93,21 @@ mod test_build_message {
         assert_eq!(expected_header, actual_header);
     }
     #[test]
+    fn convert_service_cost_into_message_line_correctly() {
+        let sample_service_cost = ParsedServiceCost {
+            service_name: "AWS CloudTrail".to_string(),
+            cost: Cost {
+                amount: 0.0123,
+                unit: "USD".to_string(),
+            },
+        };
+        let expected_line = "・AWS CloudTrail: 0.01 USD";
+        let actual_line = sample_service_cost.to_message_line();
+
+        assert_eq!(expected_line, actual_line);
+    }
+
+    #[test]
     fn build_header_correctly() {
         let sample_message = prepare_sample_message();
         let expected_header = "07/01~07/11の請求額は、1.62 USDです。";
