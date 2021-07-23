@@ -1,4 +1,4 @@
-use crate::cost_response_parser::{Cost, ParsedServiceCost, ReportedDateRange, TotalCost};
+use crate::cost_response_parser::{Cost, ReportedDateRange, ServiceCost, TotalCost};
 use chrono::Datelike;
 use std::fmt;
 
@@ -21,7 +21,7 @@ impl fmt::Display for ReportedDateRange {
     }
 }
 
-impl ParsedServiceCost {
+impl ServiceCost {
     fn to_message_line(&self) -> String {
         format!("・{}: {}", self.service_name, self.cost)
     }
@@ -38,7 +38,7 @@ struct NotificationMessage {
     body: String,
 }
 impl NotificationMessage {
-    fn new(total_cost: TotalCost, service_costs: Vec<ParsedServiceCost>) -> Self {
+    fn new(total_cost: TotalCost, service_costs: Vec<ServiceCost>) -> Self {
         NotificationMessage {
             header: total_cost.to_message_header(),
             body: service_costs
@@ -103,7 +103,7 @@ mod test_build_message {
     }
     #[test]
     fn convert_service_cost_into_message_line_correctly() {
-        let sample_service_cost = ParsedServiceCost {
+        let sample_service_cost = ServiceCost {
             service_name: "AWS CloudTrail".to_string(),
             cost: Cost {
                 amount: 0.0123,
@@ -130,14 +130,14 @@ mod test_build_message {
         };
 
         let sample_service_costs = vec![
-            ParsedServiceCost {
+            ServiceCost {
                 service_name: "AWS CloudTrail".to_string(),
                 cost: Cost {
                     amount: 0.0123,
                     unit: "USD".to_string(),
                 },
             },
-            ParsedServiceCost {
+            ServiceCost {
                 service_name: "AWS Cost Explorer".to_string(),
                 cost: Cost {
                     amount: 0.182345,

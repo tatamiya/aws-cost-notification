@@ -1,7 +1,7 @@
 use futures::executor::block_on;
 use rusoto_ce::{GetCostAndUsageRequest, GroupDefinition};
 
-use crate::cost_response_parser::{ParsedServiceCost, TotalCost};
+use crate::cost_response_parser::{ServiceCost, TotalCost};
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
 
@@ -25,11 +25,11 @@ impl<T: GetCostAndUsage> CostExplorerService<T> {
         TotalCost::from_response(&res)
     }
 
-    fn request_service_costs(self) -> Vec<ParsedServiceCost> {
+    fn request_service_costs(self) -> Vec<ServiceCost> {
         let request: GetCostAndUsageRequest =
             build_cost_and_usage_request(self.report_date_range, false);
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
-        ParsedServiceCost::from_response(&res)
+        ServiceCost::from_response(&res)
     }
 }
 
@@ -101,14 +101,14 @@ mod test_cost_explorer_service {
         let explorer = CostExplorerService::new(client_stub, report_date_range);
 
         let expected_service_costs = vec![
-            ParsedServiceCost {
+            ServiceCost {
                 service_name: String::from("Amazon Simple Storage Service"),
                 cost: Cost {
                     amount: 1234.56,
                     unit: String::from("USD"),
                 },
             },
-            ParsedServiceCost {
+            ServiceCost {
                 service_name: String::from("Amazon Elastic Compute Cloud"),
                 cost: Cost {
                     amount: 31415.92,

@@ -56,11 +56,11 @@ impl TotalCost {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct ParsedServiceCost {
+pub struct ServiceCost {
     pub service_name: String,
     pub cost: Cost,
 }
-impl ParsedServiceCost {
+impl ServiceCost {
     fn from_group(group: &Group) -> Self {
         let service_name = &group.keys.as_ref().unwrap()[0];
         let amortized_cost = group
@@ -76,7 +76,7 @@ impl ParsedServiceCost {
             .parse::<f32>()
             .unwrap();
         let unit = amortized_cost.unit.as_ref().unwrap().to_string();
-        ParsedServiceCost {
+        ServiceCost {
             service_name: service_name.to_string(),
             cost: Cost {
                 amount: amount,
@@ -87,10 +87,7 @@ impl ParsedServiceCost {
     pub fn from_response(res: &GetCostAndUsageResponse) -> Vec<Self> {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
         let groups = result_by_time.groups.as_ref().unwrap();
-        groups
-            .iter()
-            .map(|x| ParsedServiceCost::from_group(&x))
-            .collect()
+        groups.iter().map(|x| ServiceCost::from_group(&x)).collect()
     }
 }
 
@@ -156,14 +153,14 @@ mod test_parsers {
             ]),
         );
         let expected_parsed_service_costs = vec![
-            ParsedServiceCost {
+            ServiceCost {
                 service_name: String::from("Amazon Simple Storage Service"),
                 cost: Cost {
                     amount: 1234.56,
                     unit: String::from("USD"),
                 },
             },
-            ParsedServiceCost {
+            ServiceCost {
                 service_name: String::from("Amazon Elastic Compute Cloud"),
                 cost: Cost {
                     amount: 31415.92,
@@ -171,7 +168,7 @@ mod test_parsers {
                 },
             },
         ];
-        let actual_parsed_service_costs = ParsedServiceCost::from_response(&input_response);
+        let actual_parsed_service_costs = ServiceCost::from_response(&input_response);
 
         assert_eq!(expected_parsed_service_costs, actual_parsed_service_costs);
     }
