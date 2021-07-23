@@ -173,6 +173,7 @@ mod test_helpers {
     use rusoto_core::RusotoError;
     use std::collections::HashMap;
 
+    #[derive(Clone)]
     pub struct InputServiceCost {
         service_name: String,
         cost: String,
@@ -232,7 +233,10 @@ mod test_helpers {
         }
     }
 
-    pub struct CostAndUsageClientStub {}
+    pub struct CostAndUsageClientStub {
+        pub service_costs: Option<Vec<InputServiceCost>>,
+        pub total_cost: Option<String>,
+    }
     #[async_trait]
     impl GetCostAndUsage for CostAndUsageClientStub {
         async fn get_cost_and_usage(
@@ -243,15 +247,12 @@ mod test_helpers {
             let total_cost: Option<String>;
             match input.group_by {
                 Some(_) => {
-                    service_costs = Some(vec![
-                        InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
-                        InputServiceCost::new("Amazon Elastic Compute Cloud", "31415.92"),
-                    ]);
+                    service_costs = self.service_costs.clone();
                     total_cost = None;
                 }
                 None => {
                     service_costs = None;
-                    total_cost = Some(String::from("1234.56"));
+                    total_cost = self.total_cost.clone();
                 }
             }
             let response: GetCostAndUsageResponse =
@@ -336,7 +337,10 @@ mod test_cost_explorer_service {
 
     #[test]
     fn request_total_cost_correctly() {
-        let client_stub = CostAndUsageClientStub {};
+        let client_stub = CostAndUsageClientStub {
+            service_costs: None,
+            total_cost: Some(String::from("1234.56")),
+        };
         let report_date_range = ReportDateRange::new(Local.ymd(2021, 7, 23));
         let explorer = CostExplorerService::new(client_stub, report_date_range);
 
@@ -354,7 +358,13 @@ mod test_cost_explorer_service {
 
     #[test]
     fn request_service_costs_correctly() {
-        let client_stub = CostAndUsageClientStub {};
+        let client_stub = CostAndUsageClientStub {
+            service_costs: Some(vec![
+                InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
+                InputServiceCost::new("Amazon Elastic Compute Cloud", "31415.92"),
+            ]),
+            total_cost: None,
+        };
         let report_date_range = ReportDateRange::new(Local.ymd(2021, 7, 23));
         let explorer = CostExplorerService::new(client_stub, report_date_range);
 
