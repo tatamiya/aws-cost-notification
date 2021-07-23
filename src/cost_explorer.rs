@@ -231,7 +231,7 @@ mod test_helpers {
 }
 
 #[cfg(test)]
-mod tests {
+mod test_parsers {
     use super::test_helpers::*;
     use super::*;
     use rusoto_ce::*;
