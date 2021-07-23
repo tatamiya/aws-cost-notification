@@ -28,10 +28,7 @@ impl NotificationMessage {
     }
 
     fn build_header(self) -> String {
-        format!(
-            "{}の請求額は、{}です。",
-            self.total_cost.date_range, self.total_cost.cost
-        )
+        self.total_cost.to_message_header()
     }
     fn build_body(self) -> String {
         self.service_costs
