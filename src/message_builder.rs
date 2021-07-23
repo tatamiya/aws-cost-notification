@@ -6,6 +6,12 @@ impl ParsedServiceCost {
     }
 }
 
+impl ParsedTotalCost {
+    fn to_message_header(&self) -> String {
+        format!("{}の請求額は、{}です。", self.date_range, self.cost)
+    }
+}
+
 struct NotificationMessage {
     total_cost: ParsedTotalCost,
     service_costs: Vec<ParsedServiceCost>,
@@ -71,6 +77,23 @@ mod test_build_message {
         ];
 
         NotificationMessage::new(sample_total_cost, sample_service_costs)
+    }
+    #[test]
+    fn convert_total_cost_into_message_header_correctly() {
+        let sample_total_cost = ParsedTotalCost {
+            date_range: ReportedDateRange {
+                start_date: Local.ymd(2021, 7, 1),
+                end_date: Local.ymd(2021, 7, 11),
+            },
+            cost: Cost {
+                amount: 1.6234,
+                unit: "USD".to_string(),
+            },
+        };
+        let expected_header = "07/01~07/11の請求額は、1.62 USDです。";
+        let actual_header = sample_total_cost.to_message_header();
+
+        assert_eq!(expected_header, actual_header);
     }
     #[test]
     fn build_header_correctly() {
