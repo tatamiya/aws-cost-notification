@@ -5,6 +5,27 @@ use rusoto_ce::{GetCostAndUsageRequest, GetCostAndUsageResponse, Group, GroupDef
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
 
+fn build_cost_and_usage_request(
+    report_date_range: ReportDateRange,
+    is_total: bool,
+) -> GetCostAndUsageRequest {
+    let group_by: Option<Vec<GroupDefinition>> = match is_total {
+        true => None,
+        false => Some(vec![GroupDefinition {
+            type_: Some("DIMENSION".to_string()),
+            key: Some("SERVICE".to_string()),
+        }]),
+    };
+    GetCostAndUsageRequest {
+        filter: None,
+        granularity: String::from("MONTHLY"),
+        group_by: group_by,
+        metrics: vec![String::from("AmortizedCost")],
+        next_page_token: None,
+        time_period: report_date_range.as_date_interval(),
+    }
+}
+
 struct CostExplorerService<T: GetCostAndUsage> {
     client: T,
     report_date_range: ReportDateRange,
@@ -18,32 +39,16 @@ impl<T: GetCostAndUsage> CostExplorerService<T> {
     }
 
     fn request_total_cost(self) -> ParsedTotalCost {
-        let request = GetCostAndUsageRequest {
-            filter: None,
-            granularity: String::from("MONTHLY"),
-            group_by: None,
-            metrics: vec![String::from("AmortizedCost")],
-            next_page_token: None,
-            time_period: self.report_date_range.as_date_interval(),
-        };
+        let request: GetCostAndUsageRequest =
+            build_cost_and_usage_request(self.report_date_range, true);
 
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
         ParsedTotalCost::from_response(&res)
     }
 
     fn request_service_costs(self) -> Vec<ParsedServiceCost> {
-        let request = GetCostAndUsageRequest {
-            filter: None,
-            granularity: String::from("MONTHLY"),
-            group_by: Some(vec![GroupDefinition {
-                type_: Some("DIMENSION".to_string()),
-                key: Some("SERVICE".to_string()),
-            }]),
-            metrics: vec![String::from("AmortizedCost")],
-            next_page_token: None,
-            time_period: self.report_date_range.as_date_interval(),
-        };
-
+        let request: GetCostAndUsageRequest =
+            build_cost_and_usage_request(self.report_date_range, false);
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
         ParsedServiceCost::from_response(&res)
     }
@@ -293,6 +298,54 @@ mod test_parsers {
         let actual_parsed_service_costs = ParsedServiceCost::from_response(&input_response);
 
         assert_eq!(expected_parsed_service_costs, actual_parsed_service_costs);
+    }
+}
+
+#[cfg(test)]
+mod test_build_request {
+    use super::*;
+    use crate::date_range::ReportDateRange;
+    use chrono::{Local, TimeZone};
+    use rusoto_ce::DateInterval;
+
+    #[test]
+    fn build_total_cost_request_correctly() {
+        let input_date_range = ReportDateRange::new(Local.ymd(2021, 7, 23));
+        let expected_request = GetCostAndUsageRequest {
+            filter: None,
+            granularity: String::from("MONTHLY"),
+            group_by: None,
+            metrics: vec![String::from("AmortizedCost")],
+            next_page_token: None,
+            time_period: DateInterval {
+                start: "2021-07-01".to_string(),
+                end: "2021-07-23".to_string(),
+            },
+        };
+        let actual_request = build_cost_and_usage_request(input_date_range, true);
+        assert_eq!(expected_request, actual_request);
+    }
+
+    #[test]
+    fn build_service_costs_request_correctly() {
+        let input_date_range = ReportDateRange::new(Local.ymd(2021, 7, 23));
+        let expected_request = GetCostAndUsageRequest {
+            filter: None,
+            granularity: String::from("MONTHLY"),
+            group_by: Some(vec![GroupDefinition {
+                type_: Some("DIMENSION".to_string()),
+                key: Some("SERVICE".to_string()),
+            }]),
+            metrics: vec![String::from("AmortizedCost")],
+            next_page_token: None,
+            time_period: DateInterval {
+                start: "2021-07-01".to_string(),
+                end: "2021-07-23".to_string(),
+            },
+        };
+        let actual_request = build_cost_and_usage_request(input_date_range, false);
+
+        assert_eq!(expected_request, actual_request);
     }
 }
 
