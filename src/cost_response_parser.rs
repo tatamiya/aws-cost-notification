@@ -102,76 +102,13 @@ fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<
     Local.from_local_date(&parsed_start_date)
 }
 
-mod test_helpers {
-    use rusoto_ce::*;
-    use std::collections::HashMap;
-
-    #[derive(Clone)]
-    pub struct InputServiceCost {
-        service_name: String,
-        cost: String,
-    }
-    impl InputServiceCost {
-        pub fn new(service_name: &str, cost: &str) -> Self {
-            InputServiceCost {
-                service_name: String::from(service_name),
-                cost: String::from(cost),
-            }
-        }
-
-        fn as_group(&self) -> Group {
-            let mut metrics = HashMap::new();
-            metrics.insert(
-                String::from("AmortizedCost"),
-                MetricValue {
-                    amount: Some(self.cost.clone()),
-                    unit: Some(String::from("USD")),
-                },
-            );
-            Group {
-                keys: Some(vec![self.service_name.clone()]),
-                metrics: Some(metrics),
-            }
-        }
-    }
-
-    pub fn prepare_sample_response(
-        date_interval: Option<DateInterval>,
-        total_cost: Option<String>,
-        service_costs: Option<Vec<InputServiceCost>>,
-    ) -> GetCostAndUsageResponse {
-        let mut total = HashMap::new();
-        total.insert(
-            String::from("AmortizedCost"),
-            MetricValue {
-                amount: total_cost,
-                unit: Some(String::from("USD")),
-            },
-        );
-        let input_grouped_costs: Option<Vec<Group>> = match service_costs {
-            Some(service_costs) => Some(service_costs.iter().map(|x| x.as_group()).collect()),
-            None => None,
-        };
-
-        GetCostAndUsageResponse {
-            dimension_value_attributes: None,
-            group_definitions: None,
-            next_page_token: None,
-            results_by_time: Some(vec![ResultByTime {
-                estimated: Some(false),
-                groups: input_grouped_costs,
-                time_period: date_interval,
-                total: Some(total),
-            }]),
-        }
-    }
-}
-
 #[cfg(test)]
 mod test_parsers {
-    use super::test_helpers::*;
+
     use super::*;
     use rusoto_ce::*;
+
+    use crate::test_utils::{prepare_sample_response, InputServiceCost};
 
     #[test]
     fn parse_timestamp_into_local_date_correctly() {
