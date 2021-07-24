@@ -7,13 +7,29 @@ use std::result::Result;
 
 extern crate slack_hook;
 
-use slack_hook::{Attachment, Error, HexColor, PayloadBuilder, Slack, SlackText, TryFrom};
+use slack_hook::{Attachment, Error, HexColor, Payload, PayloadBuilder, Slack, SlackText, TryFrom};
 
-pub fn send_message_to_slack(message: NotificationMessage, channel: &str) -> Result<(), Error> {
+pub struct SlackClient {
+    slack: Slack,
+}
+impl SlackClient {
+    pub fn new() -> Self {
+        dotenv().ok();
+        let webhook_url = dotenv::var("SLACK_WEBHOOK_URL").expect("Webhook URL not found.");
+        let slack = Slack::new(webhook_url.as_ref()).unwrap();
+        SlackClient { slack: slack }
+    }
+    fn post(self, payload: &Payload) -> Result<(), Error> {
+        self.slack.send(&payload)
+    }
+}
+
+pub fn send_message_to_slack(
+    client: SlackClient,
+    message: NotificationMessage,
+) -> Result<(), Error> {
     dotenv().ok();
-    let webhook_url = dotenv::var("SLACK_WEBHOOK_URL").expect("Webhook URL not found.");
-    let slack = Slack::new(webhook_url.as_ref()).unwrap();
-    let p = PayloadBuilder::new()
+    let payload = PayloadBuilder::new()
         .attachments(vec![Attachment {
             pretext: Some(SlackText::new(message.header)),
             text: Some(SlackText::new(message.body)),
@@ -22,8 +38,7 @@ pub fn send_message_to_slack(message: NotificationMessage, channel: &str) -> Res
         }])
         .build()
         .unwrap();
-
-    slack.send(&p)
+    client.post(&payload)
 }
 
 #[cfg(test)]
