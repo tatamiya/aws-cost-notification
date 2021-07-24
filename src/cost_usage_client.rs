@@ -1,5 +1,6 @@
 use rusoto_ce::{
-    CostExplorerClient, GetCostAndUsageError, GetCostAndUsageRequest, GetCostAndUsageResponse,
+    CostExplorer, CostExplorerClient, GetCostAndUsageError, GetCostAndUsageRequest,
+    GetCostAndUsageResponse,
 };
 use rusoto_core::{Region, RusotoError};
 
@@ -27,6 +28,6 @@ impl GetCostAndUsage for CostAndUsageClient {
         &self,
         input: GetCostAndUsageRequest,
     ) -> Result<GetCostAndUsageResponse, RusotoError<GetCostAndUsageError>> {
-        self.get_cost_and_usage(input).await
+        (&self.0).get_cost_and_usage(input).await
     }
 }
