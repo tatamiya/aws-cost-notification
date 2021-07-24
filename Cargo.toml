@@ -9,7 +9,10 @@ version = "0.1.0"
 [dependencies]
 async-trait = "0.1"
 chrono = "0.4"
+dotenv = "0.15"
 futures = "0.3"
+reqwest = {version = "0.11", features = ["json", "blocking"]}
 rusoto_ce = "0"
 rusoto_core = "0.47"
 serde_json = "1"
+# slack-hook = "0.8"
