@@ -24,7 +24,7 @@ impl ReportDateRange {
         }
     }
 
-    pub fn as_date_interval(self) -> DateInterval {
+    pub fn as_date_interval(&self) -> DateInterval {
         DateInterval {
             end: self.end_date.format("%Y-%m-%d").to_string(),
             start: self.start_date.format("%Y-%m-%d").to_string(),

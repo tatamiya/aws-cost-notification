@@ -38,7 +38,7 @@ pub struct NotificationMessage {
     pub body: String,
 }
 impl NotificationMessage {
-    fn new(total_cost: TotalCost, service_costs: Vec<ServiceCost>) -> Self {
+    pub fn new(total_cost: TotalCost, service_costs: Vec<ServiceCost>) -> Self {
         NotificationMessage {
             header: total_cost.to_message_header(),
             body: service_costs

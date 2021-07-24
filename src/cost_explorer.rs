@@ -5,36 +5,36 @@ use crate::cost_response_parser::{ServiceCost, TotalCost};
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
 
-struct CostExplorerService<T: GetCostAndUsage> {
+pub struct CostExplorerService<T: GetCostAndUsage> {
     client: T,
     report_date_range: ReportDateRange,
 }
 impl<T: GetCostAndUsage> CostExplorerService<T> {
-    fn new(client: T, report_date_range: ReportDateRange) -> Self {
+    pub fn new(client: T, report_date_range: ReportDateRange) -> Self {
         CostExplorerService {
             client: client,
             report_date_range: report_date_range,
         }
     }
 
-    fn request_total_cost(self) -> TotalCost {
+    pub fn request_total_cost(&self) -> TotalCost {
         let request: GetCostAndUsageRequest =
-            build_cost_and_usage_request(self.report_date_range, true);
+            build_cost_and_usage_request(&self.report_date_range, true);
 
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
         TotalCost::from_response(&res)
     }
 
-    fn request_service_costs(self) -> Vec<ServiceCost> {
+    pub fn request_service_costs(&self) -> Vec<ServiceCost> {
         let request: GetCostAndUsageRequest =
-            build_cost_and_usage_request(self.report_date_range, false);
+            build_cost_and_usage_request(&self.report_date_range, false);
         let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
         ServiceCost::from_response(&res)
     }
 }
 
 fn build_cost_and_usage_request(
-    report_date_range: ReportDateRange,
+    report_date_range: &ReportDateRange,
     is_total: bool,
 ) -> GetCostAndUsageRequest {
     let group_by: Option<Vec<GroupDefinition>> = match is_total {
@@ -144,7 +144,7 @@ mod test_build_request {
                 end: "2021-07-23".to_string(),
             },
         };
-        let actual_request = build_cost_and_usage_request(input_date_range, true);
+        let actual_request = build_cost_and_usage_request(&input_date_range, true);
         assert_eq!(expected_request, actual_request);
     }
 
@@ -165,7 +165,7 @@ mod test_build_request {
                 end: "2021-07-23".to_string(),
             },
         };
-        let actual_request = build_cost_and_usage_request(input_date_range, false);
+        let actual_request = build_cost_and_usage_request(&input_date_range, false);
 
         assert_eq!(expected_request, actual_request);
     }
