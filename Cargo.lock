@@ -50,6 +50,7 @@ dependencies = [
  "rusoto_core",
  "serde_json",
  "slack-hook",
+ "tokio 1.9.0",
 ]
 
 [[package]]

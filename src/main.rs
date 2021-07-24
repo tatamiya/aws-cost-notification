@@ -15,7 +15,10 @@ use date_range::ReportDateRange;
 use message_builder::NotificationMessage;
 use slack_notifier::SlackClient;
 
-fn main() {
+use tokio;
+
+#[tokio::main]
+async fn main() {
     println!("Start Program");
     let reporting_date = Local::today();
     let report_date_range = ReportDateRange::new(reporting_date);
@@ -24,9 +27,9 @@ fn main() {
     let cost_usage_client = CostAndUsageClient::new(Region::ApNortheast1);
     let cost_explorer = CostExplorerService::new(cost_usage_client, report_date_range);
     println!("- Request Total Cost");
-    let total_cost = cost_explorer.request_total_cost();
+    let total_cost = cost_explorer.request_total_cost().await;
     println!("- Request Service Cost");
-    let service_costs = cost_explorer.request_service_costs();
+    let service_costs = cost_explorer.request_service_costs().await;
 
     println!("Build Notification Message");
     let notification_message = NotificationMessage::new(total_cost, service_costs);

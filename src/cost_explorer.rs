@@ -17,18 +17,18 @@ impl<T: GetCostAndUsage> CostExplorerService<T> {
         }
     }
 
-    pub fn request_total_cost(&self) -> TotalCost {
+    pub async fn request_total_cost(&self) -> TotalCost {
         let request: GetCostAndUsageRequest =
             build_cost_and_usage_request(&self.report_date_range, true);
 
-        let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
+        let res = self.client.get_cost_and_usage(request).await.unwrap();
         TotalCost::from_response(&res)
     }
 
-    pub fn request_service_costs(&self) -> Vec<ServiceCost> {
+    pub async fn request_service_costs(&self) -> Vec<ServiceCost> {
         let request: GetCostAndUsageRequest =
             build_cost_and_usage_request(&self.report_date_range, false);
-        let res = block_on(self.client.get_cost_and_usage(request)).unwrap();
+        let res = self.client.get_cost_and_usage(request).await.unwrap();
         ServiceCost::from_response(&res)
     }
 }
