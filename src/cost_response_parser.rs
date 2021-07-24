@@ -1,10 +1,27 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
-use rusoto_ce::{GetCostAndUsageResponse, Group};
+use rusoto_ce::{GetCostAndUsageResponse, Group, MetricValue};
 
 #[derive(Debug, PartialEq)]
 pub struct Cost {
     pub amount: f32,
     pub unit: String,
+}
+impl Cost {
+    fn from_metric_value(metric_value: &MetricValue) -> Self {
+        let parsed_amount = metric_value
+            .amount
+            .as_ref()
+            .unwrap()
+            .parse::<f32>()
+            .unwrap();
+
+        let parsed_unit = metric_value.unit.as_ref().unwrap().to_string();
+
+        Cost {
+            amount: parsed_amount,
+            unit: parsed_unit,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -33,24 +50,12 @@ impl TotalCost {
             .get("AmortizedCost")
             .unwrap();
 
-        let parsed_cost = amortized_cost
-            .amount
-            .as_ref()
-            .unwrap()
-            .parse::<f32>()
-            .unwrap();
-
-        let parsed_cost_unit = amortized_cost.unit.as_ref().unwrap().to_string();
-
         TotalCost {
             date_range: ReportedDateRange {
                 start_date: parsed_start_date,
                 end_date: parsed_end_date,
             },
-            cost: Cost {
-                amount: parsed_cost,
-                unit: parsed_cost_unit,
-            },
+            cost: Cost::from_metric_value(amortized_cost),
         }
     }
 }
@@ -69,19 +74,10 @@ impl ServiceCost {
             .unwrap()
             .get("AmortizedCost")
             .unwrap();
-        let amount = amortized_cost
-            .amount
-            .as_ref()
-            .unwrap()
-            .parse::<f32>()
-            .unwrap();
-        let unit = amortized_cost.unit.as_ref().unwrap().to_string();
+
         ServiceCost {
             service_name: service_name.to_string(),
-            cost: Cost {
-                amount: amount,
-                unit: unit,
-            },
+            cost: Cost::from_metric_value(&amortized_cost),
         }
     }
     pub fn from_response(res: &GetCostAndUsageResponse) -> Vec<Self> {
@@ -113,6 +109,23 @@ mod test_parsers {
 
         let actual_parsed_date = parse_timestamp_into_local_date(input_timestamp).unwrap();
         assert_eq!(expected_parsed_date, actual_parsed_date);
+    }
+
+    #[test]
+    fn parse_cost_from_metric_value_correctly() {
+        let input_metric_value = MetricValue {
+            amount: Some("123.56".to_string()),
+            unit: Some("USD".to_string()),
+        };
+
+        let expected_cost = Cost {
+            amount: 123.56,
+            unit: "USD".to_string(),
+        };
+
+        let actual_cost = Cost::from_metric_value(&input_metric_value);
+
+        assert_eq!(expected_cost, actual_cost);
     }
 
     #[test]
