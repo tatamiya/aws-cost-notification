@@ -24,7 +24,9 @@ async fn main() {
     let report_date_range = ReportDateRange::new(reporting_date);
 
     println!("Request Cost and Usage");
-    let cost_usage_client = CostAndUsageClient::new(Region::ApNortheast1);
+    // NOTE: Region must not be ap-northeast-1 because
+    // because endpoint https://ce.ap-northeast1.amazonaws.com/ does not exist
+    let cost_usage_client = CostAndUsageClient::new(Region::UsEast1);
     let cost_explorer = CostExplorerService::new(cost_usage_client, report_date_range);
     println!("- Request Total Cost");
     let total_cost = cost_explorer.request_total_cost().await;

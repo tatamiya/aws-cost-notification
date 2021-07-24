@@ -1,4 +1,3 @@
-use futures::executor::block_on;
 use rusoto_ce::{GetCostAndUsageRequest, GroupDefinition};
 
 use crate::cost_response_parser::{ServiceCost, TotalCost};
