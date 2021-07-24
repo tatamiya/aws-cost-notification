@@ -1,5 +1,3 @@
-use serde_json::{json, Value as JsonValue};
-
 use crate::message_builder::NotificationMessage;
 
 use dotenv::dotenv;
@@ -8,6 +6,17 @@ use std::result::Result;
 extern crate slack_hook;
 
 use slack_hook::{Attachment, Error, HexColor, Payload, PayloadBuilder, Slack, SlackText, TryFrom};
+
+impl NotificationMessage {
+    fn as_attachment(self, color: &str) -> Attachment {
+        Attachment {
+            pretext: Some(SlackText::new(self.header)),
+            text: Some(SlackText::new(self.body)),
+            color: Some(HexColor::try_from(color).unwrap()),
+            ..Attachment::default()
+        }
+    }
+}
 
 pub struct SlackClient {
     slack: Slack,
@@ -28,33 +37,36 @@ pub fn send_message_to_slack(
     client: SlackClient,
     message: NotificationMessage,
 ) -> Result<(), Error> {
-    dotenv().ok();
     let payload = PayloadBuilder::new()
-        .attachments(vec![Attachment {
-            pretext: Some(SlackText::new(message.header)),
-            text: Some(SlackText::new(message.body)),
-            color: Some(HexColor::try_from("#36a64f").unwrap()),
-            ..Attachment::default()
-        }])
+        .attachments(vec![message.as_attachment("#36a64f")])
         .build()
         .unwrap();
+
     client.post(&payload)
 }
 
 #[cfg(test)]
-mod test_build_payload {
+mod test_build_attachment {
     use crate::message_builder::NotificationMessage;
-    use serde_json::json;
+    use slack_hook::{Attachment, HexColor, SlackText, TryFrom};
 
     #[test]
-    fn build_payload_correctly() {
+    fn build_attachment_correctly() {
         let sample_message = NotificationMessage {
             header: "07/01~07/11の請求額は、1.62 USDです。".to_string(),
             body: "・AWS CloudTrail: 0.01 USD\n・AWS Cost Explorer: 0.18 USD".to_string(),
         };
 
-        //let actual_payload = sample_message.as_payload();
+        let expected_attchment = Attachment {
+            pretext: Some(SlackText::new("07/01~07/11の請求額は、1.62 USDです。")),
+            text: Some(SlackText::new(
+                "・AWS CloudTrail: 0.01 USD\n・AWS Cost Explorer: 0.18 USD",
+            )),
+            color: Some(HexColor::try_from("#36a64f").unwrap()),
+            ..Attachment::default()
+        };
+        let actual_attachment = sample_message.as_attachment("#36a64f");
 
-        //assert_eq!(expected_payload, actual_payload);
+        assert_eq!(expected_attchment, actual_attachment);
     }
 }
