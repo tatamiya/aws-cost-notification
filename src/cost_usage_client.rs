@@ -17,8 +17,10 @@ pub trait GetCostAndUsage {
 pub struct CostAndUsageClient(CostExplorerClient);
 
 impl CostAndUsageClient {
-    pub fn new(region: Region) -> Self {
-        CostAndUsageClient(CostExplorerClient::new(region))
+    pub fn new() -> Self {
+        // NOTE: Region must not be ap-northeast-1 because
+        // because endpoint https://ce.ap-northeast1.amazonaws.com/ does not exist
+        CostAndUsageClient(CostExplorerClient::new(Region::UsEast1))
     }
 }
 
