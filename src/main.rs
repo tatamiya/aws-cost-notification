@@ -15,6 +15,7 @@ use slack_notifier::SlackClient;
 use chrono::{Date, Local};
 use lambda_runtime::{handler_fn, Context, Error};
 use serde_json::Value;
+use std::error;
 use tokio;
 
 #[tokio::main]
@@ -29,14 +30,18 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     let slack_client = SlackClient::new();
     let reporting_date = Local::today();
 
-    request_cost_and_notify(cost_usage_client, slack_client, reporting_date).await
+    let res = request_cost_and_notify(cost_usage_client, slack_client, reporting_date).await;
+    match res {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string().into()),
+    }
 }
 
 async fn request_cost_and_notify(
     cost_usage_client: CostAndUsageClient,
     slack_client: SlackClient,
     reporting_date: Date<Local>,
-) -> Result<(), Error> {
+) -> Result<(), Box<dyn error::Error>> {
     let report_date_range = ReportDateRange::new(reporting_date);
 
     let cost_explorer = CostExplorerService::new(cost_usage_client, report_date_range);
