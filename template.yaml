@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  RustBacktrace:
+    Type: Number
+  SlackWebhookURL:
+    Type: String
+Resources:
+  NotifyCostToSlack:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CostNotifier
+      CodeUri: ./lambda.zip
+      Handler: doesnt.matter
+      Runtime: provided
+      Timeout: 90
+      Policies:
+        - CostExplorerReadOnlyPolicy:
+            Action: ce:GetCostAndUsage
+      Environment:
+        Variables:
+          RUST_BACKTRACE: 1
+          SLACK_WEBHOOK_URL: !Ref SlackWebhookURL
+      Events:
+        NotifyCostToSlack:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 0 * * ? *)
+    Metadata:
+      BuildMethod: makefile

@@ -1,5 +1,7 @@
 /target
 .cargo
 .env
+.aws-sam
 .python-version
 *.zip
+samconfig.toml
