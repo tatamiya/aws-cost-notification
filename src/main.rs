@@ -30,6 +30,11 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     let slack_client = SlackClient::new();
     let reporting_date = Local::today();
 
+    println!(
+        "Launched lambda handler with reporting date {}",
+        reporting_date
+    );
+
     let res = request_cost_and_notify(cost_usage_client, slack_client, reporting_date).await;
     match res {
         Ok(_) => Ok(()),
