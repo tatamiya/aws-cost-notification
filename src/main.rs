@@ -7,7 +7,6 @@ mod slack_notifier;
 mod test_utils;
 
 use chrono::Local;
-use rusoto_core::Region;
 
 use cost_explorer::CostExplorerService;
 use cost_usage_client::CostAndUsageClient;
