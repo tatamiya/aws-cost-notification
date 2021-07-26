@@ -11,7 +11,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: CostNotifier
-      CodeUri: ./lambda.zip
+      CodeUri: .
       Handler: doesnt.matter
       Runtime: provided
       Timeout: 90
