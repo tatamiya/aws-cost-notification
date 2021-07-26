@@ -61,9 +61,10 @@ mod test_cost_explorer_service {
     use crate::date_range::ReportDateRange;
     use crate::test_utils::{CostAndUsageClientStub, InputServiceCost};
     use chrono::{Local, TimeZone};
+    use tokio;
 
-    #[test]
-    fn request_total_cost_correctly() {
+    #[tokio::test]
+    async fn request_total_cost_correctly() {
         let client_stub = CostAndUsageClientStub {
             service_costs: None,
             total_cost: Some(String::from("1234.56")),
@@ -82,13 +83,13 @@ mod test_cost_explorer_service {
             },
         };
 
-        let actual_total_cost = explorer.request_total_cost();
+        let actual_total_cost = explorer.request_total_cost().await;
 
         assert_eq!(expected_total_cost, actual_total_cost);
     }
 
-    #[test]
-    fn request_service_costs_correctly() {
+    #[tokio::test]
+    async fn request_service_costs_correctly() {
         let client_stub = CostAndUsageClientStub {
             service_costs: Some(vec![
                 InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
@@ -116,7 +117,7 @@ mod test_cost_explorer_service {
             },
         ];
 
-        let actual_service_costs = explorer.request_service_costs();
+        let actual_service_costs = explorer.request_service_costs().await;
 
         assert_eq!(expected_service_costs, actual_service_costs);
     }
