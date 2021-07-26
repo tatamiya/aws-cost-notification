@@ -43,6 +43,7 @@ impl NotificationMessage {
             header: total_cost.to_message_header(),
             body: service_costs
                 .iter()
+                .filter(|x| format!("{}", x.cost) != "0.00 USD")
                 .map(|x| x.to_message_line())
                 .collect::<Vec<_>>()
                 .join("\n"),
@@ -157,5 +158,52 @@ mod test_build_message {
             "・AWS CloudTrail: 0.01 USD\n・AWS Cost Explorer: 0.18 USD",
             actual_message.body,
         );
+    }
+
+    #[test]
+    fn message_line_is_not_displayed_when_cost_is_zero() {
+        let sample_total_cost = TotalCost {
+            date_range: ReportedDateRange {
+                start_date: Local.ymd(2021, 7, 1),
+                end_date: Local.ymd(2021, 7, 11),
+            },
+            cost: Cost {
+                amount: 0.01,
+                unit: "USD".to_string(),
+            },
+        };
+
+        let sample_service_costs = vec![
+            ServiceCost {
+                service_name: "AWS CloudTrail".to_string(),
+                cost: Cost {
+                    amount: 0.01,
+                    unit: "USD".to_string(),
+                },
+            },
+            ServiceCost {
+                service_name: "AWS Cost Explorer".to_string(),
+                cost: Cost {
+                    amount: 0.001,
+                    unit: "USD".to_string(),
+                },
+            },
+            ServiceCost {
+                service_name: "AWS Dummy Service".to_string(),
+                cost: Cost {
+                    amount: 0.005,
+                    unit: "USD".to_string(),
+                },
+            },
+        ];
+
+        let actual_message = NotificationMessage::new(sample_total_cost, sample_service_costs);
+
+        assert_eq!(
+            "07/01~07/11の請求額は、0.01 USDです。",
+            actual_message.header,
+        );
+
+        assert_eq!("・AWS CloudTrail: 0.01 USD", actual_message.body,);
     }
 }
