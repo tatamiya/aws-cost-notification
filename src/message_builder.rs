@@ -39,9 +39,13 @@ pub struct NotificationMessage {
 }
 impl NotificationMessage {
     pub fn new(total_cost: TotalCost, service_costs: Vec<ServiceCost>) -> Self {
+        // TODO: There must be more smart way to copy and sort a vector.
+        let mut sorted_service_costs = service_costs.iter().collect::<Vec<_>>();
+        sorted_service_costs.sort_by(|a, b| b.cost.amount.partial_cmp(&a.cost.amount).unwrap());
+
         NotificationMessage {
             header: total_cost.to_message_header(),
-            body: service_costs
+            body: sorted_service_costs
                 .iter()
                 .filter(|x| format!("{}", x.cost) != "0.00 USD")
                 .map(|x| x.to_message_line())
@@ -125,6 +129,49 @@ mod test_build_message {
                 end_date: Local.ymd(2021, 7, 11),
             },
             cost: Cost {
+                amount: 1.357,
+                unit: "USD".to_string(),
+            },
+        };
+
+        let sample_service_costs = vec![
+            ServiceCost {
+                service_name: "AWS CloudTrail".to_string(),
+                cost: Cost {
+                    amount: 1.234,
+                    unit: "USD".to_string(),
+                },
+            },
+            ServiceCost {
+                service_name: "AWS Cost Explorer".to_string(),
+                cost: Cost {
+                    amount: 0.123,
+                    unit: "USD".to_string(),
+                },
+            },
+        ];
+
+        let actual_message = NotificationMessage::new(sample_total_cost, sample_service_costs);
+
+        assert_eq!(
+            "07/01~07/11の請求額は、1.36 USDです。",
+            actual_message.header,
+        );
+
+        assert_eq!(
+            "・AWS CloudTrail: 1.23 USD\n・AWS Cost Explorer: 0.12 USD",
+            actual_message.body,
+        );
+    }
+
+    #[test]
+    fn sort_service_costs_by_descending_order_correctly() {
+        let sample_total_cost = TotalCost {
+            date_range: ReportedDateRange {
+                start_date: Local.ymd(2021, 7, 1),
+                end_date: Local.ymd(2021, 7, 11),
+            },
+            cost: Cost {
                 amount: 1.6234,
                 unit: "USD".to_string(),
             },
@@ -155,7 +202,7 @@ mod test_build_message {
         );
 
         assert_eq!(
-            "・AWS CloudTrail: 0.01 USD\n・AWS Cost Explorer: 0.18 USD",
+            "・AWS Cost Explorer: 0.18 USD\n・AWS CloudTrail: 0.01 USD",
             actual_message.body,
         );
     }
