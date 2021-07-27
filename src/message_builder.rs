@@ -39,8 +39,7 @@ pub struct NotificationMessage {
 }
 impl NotificationMessage {
     pub fn new(total_cost: TotalCost, service_costs: Vec<ServiceCost>) -> Self {
-        // TODO: There must be more smart way to copy and sort a vector.
-        let mut sorted_service_costs = service_costs.iter().collect::<Vec<_>>();
+        let mut sorted_service_costs = service_costs.clone();
         sorted_service_costs.sort_by(|a, b| b.cost.amount.partial_cmp(&a.cost.amount).unwrap());
 
         NotificationMessage {

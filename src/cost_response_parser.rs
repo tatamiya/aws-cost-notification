@@ -1,7 +1,7 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
 use rusoto_ce::{GetCostAndUsageResponse, Group, MetricValue};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Cost {
     pub amount: f32,
     pub unit: String,
@@ -60,7 +60,7 @@ impl TotalCost {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ServiceCost {
     pub service_name: String,
     pub cost: Cost,
