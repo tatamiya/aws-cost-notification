@@ -178,16 +178,23 @@ mod test_build_message {
 
         let sample_service_costs = vec![
             ServiceCost {
-                service_name: "AWS CloudTrail".to_string(),
+                service_name: "AWS Service A".to_string(),
                 cost: Cost {
-                    amount: 0.0123,
+                    amount: 1.0,
                     unit: "USD".to_string(),
                 },
             },
             ServiceCost {
-                service_name: "AWS Cost Explorer".to_string(),
+                service_name: "AWS Service B".to_string(),
                 cost: Cost {
-                    amount: 0.182345,
+                    amount: 3.0,
+                    unit: "USD".to_string(),
+                },
+            },
+            ServiceCost {
+                service_name: "AWS Service C".to_string(),
+                cost: Cost {
+                    amount: 2.0,
                     unit: "USD".to_string(),
                 },
             },
@@ -196,12 +203,7 @@ mod test_build_message {
         let actual_message = NotificationMessage::new(sample_total_cost, sample_service_costs);
 
         assert_eq!(
-            "07/01~07/11の請求額は、1.62 USDです。",
-            actual_message.header,
-        );
-
-        assert_eq!(
-            "・AWS Cost Explorer: 0.18 USD\n・AWS CloudTrail: 0.01 USD",
+            "・AWS Service B: 3.00 USD\n・AWS Service C: 2.00 USD\n・AWS Service A: 1.00 USD",
             actual_message.body,
         );
     }
