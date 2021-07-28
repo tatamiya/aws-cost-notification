@@ -1,7 +1,7 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
 use rusoto_ce::{GetCostAndUsageResponse, Group, MetricValue};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, PartialOrd)]
 pub struct Cost {
     pub amount: f32,
     pub unit: String,

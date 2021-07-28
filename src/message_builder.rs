@@ -40,7 +40,7 @@ pub struct NotificationMessage {
 impl NotificationMessage {
     pub fn new(total_cost: TotalCost, service_costs: Vec<ServiceCost>) -> Self {
         let mut sorted_service_costs = service_costs.clone();
-        sorted_service_costs.sort_by(|a, b| b.cost.amount.partial_cmp(&a.cost.amount).unwrap());
+        sorted_service_costs.sort_by(|a, b| b.cost.partial_cmp(&a.cost).unwrap());
 
         NotificationMessage {
             header: total_cost.to_message_header(),
