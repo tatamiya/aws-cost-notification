@@ -12,10 +12,12 @@ use date_range::ReportDateRange;
 use message_builder::NotificationMessage;
 use slack_notifier::SlackClient;
 
-use chrono::{Date, Local};
+use chrono::{Date, Local, TimeZone};
+use chrono_tz::Tz;
 use lambda_runtime::{handler_fn, Context, Error};
 use serde_json::Value;
 use std::error;
+use std::fmt::Display;
 use tokio;
 
 #[tokio::main]
@@ -28,7 +30,10 @@ async fn main() -> Result<(), Error> {
 async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     let cost_usage_client = CostAndUsageClient::new();
     let slack_client = SlackClient::new();
-    let reporting_date = Local::today();
+
+    let timezone: Tz = "Asia/Tokyo".parse().unwrap();
+    let now = Local::now();
+    let reporting_date = now.with_timezone(&timezone).date();
 
     println!(
         "Launched lambda handler with reporting date {}",
@@ -42,11 +47,15 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     }
 }
 
-async fn request_cost_and_notify(
+async fn request_cost_and_notify<T>(
     cost_usage_client: CostAndUsageClient,
     slack_client: SlackClient,
-    reporting_date: Date<Local>,
-) -> Result<(), Box<dyn error::Error>> {
+    reporting_date: Date<T>,
+) -> Result<(), Box<dyn error::Error>>
+where
+    T: TimeZone,
+    <T as chrono::TimeZone>::Offset: Display,
+{
     let report_date_range = ReportDateRange::new(reporting_date);
 
     let cost_explorer = CostExplorerService::new(cost_usage_client, report_date_range);

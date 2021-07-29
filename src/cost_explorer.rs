@@ -1,15 +1,25 @@
+use chrono::TimeZone;
 use rusoto_ce::{GetCostAndUsageRequest, GroupDefinition};
+use std::fmt::Display;
 
 use crate::cost_response_parser::{ServiceCost, TotalCost};
 use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
 
-pub struct CostExplorerService<T: GetCostAndUsage> {
+pub struct CostExplorerService<T: GetCostAndUsage, U>
+where
+    U: TimeZone,
+    <U as chrono::TimeZone>::Offset: Display,
+{
     client: T,
-    report_date_range: ReportDateRange,
+    report_date_range: ReportDateRange<U>,
 }
-impl<T: GetCostAndUsage> CostExplorerService<T> {
-    pub fn new(client: T, report_date_range: ReportDateRange) -> Self {
+impl<T: GetCostAndUsage, U> CostExplorerService<T, U>
+where
+    U: TimeZone,
+    <U as chrono::TimeZone>::Offset: Display,
+{
+    pub fn new(client: T, report_date_range: ReportDateRange<U>) -> Self {
         CostExplorerService {
             client: client,
             report_date_range: report_date_range,
@@ -32,10 +42,14 @@ impl<T: GetCostAndUsage> CostExplorerService<T> {
     }
 }
 
-fn build_cost_and_usage_request(
-    report_date_range: &ReportDateRange,
+fn build_cost_and_usage_request<U>(
+    report_date_range: &ReportDateRange<U>,
     is_total: bool,
-) -> GetCostAndUsageRequest {
+) -> GetCostAndUsageRequest
+where
+    U: TimeZone,
+    <U as chrono::TimeZone>::Offset: Display,
+{
     let group_by: Option<Vec<GroupDefinition>> = match is_total {
         true => None,
         false => Some(vec![GroupDefinition {

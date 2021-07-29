@@ -1,16 +1,25 @@
-use chrono::{Date, Datelike, Local};
+use chrono::{Date, Datelike, TimeZone};
 use rusoto_ce::DateInterval;
+use std::fmt::Display;
 
 #[derive(Debug, PartialEq)]
-pub struct ReportDateRange {
-    start_date: Date<Local>,
-    end_date: Date<Local>,
+pub struct ReportDateRange<T>
+where
+    T: TimeZone,
+    <T as TimeZone>::Offset: Display,
+{
+    start_date: Date<T>,
+    end_date: Date<T>,
 }
-impl ReportDateRange {
-    pub fn new(reporting_date: Date<Local>) -> Self {
+impl<T> ReportDateRange<T>
+where
+    T: TimeZone,
+    <T as TimeZone>::Offset: Display,
+{
+    pub fn new(reporting_date: Date<T>) -> Self {
         let first_day_of_month = reporting_date.with_day(1).unwrap();
 
-        let start_date: Date<Local>;
+        let start_date: Date<T>;
         if reporting_date == first_day_of_month {
             // First day of the previous month
             start_date = first_day_of_month.pred().with_day(1).unwrap();
