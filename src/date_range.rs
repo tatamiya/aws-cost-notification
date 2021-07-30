@@ -2,7 +2,7 @@ use chrono::{Date, Datelike, TimeZone};
 use rusoto_ce::DateInterval;
 use std::fmt::Display;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct ReportDateRange<T>
 where
     T: TimeZone,
@@ -38,6 +38,15 @@ where
             end: self.end_date.format("%Y-%m-%d").to_string(),
             start: self.start_date.format("%Y-%m-%d").to_string(),
         }
+    }
+}
+impl<T> PartialEq for ReportDateRange<T>
+where
+    T: TimeZone,
+    <T as TimeZone>::Offset: Display,
+{
+    fn eq(&self, other: &ReportDateRange<T>) -> bool {
+        self.start_date == other.start_date && self.end_date == other.end_date
     }
 }
 
