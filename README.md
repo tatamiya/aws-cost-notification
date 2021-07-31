@@ -33,6 +33,7 @@ version = 0.1
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = [
   "SlackWebhookURL={Slack Webhook URL}",
+  "ReportingTimezone={Timezone for reporting date e.g. Asia/Tokyo}"
 ]
 profile = "{IAM user profile name for deployment}"
 region = "{region}"
