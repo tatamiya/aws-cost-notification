@@ -6,6 +6,8 @@ Parameters:
     Type: Number
   SlackWebhookURL:
     Type: String
+  ReportingTimezone:
+    Type: String
 Resources:
   NotifyCostToSlack:
     Type: AWS::Serverless::Function
@@ -22,6 +24,7 @@ Resources:
         Variables:
           RUST_BACKTRACE: 1
           SLACK_WEBHOOK_URL: !Ref SlackWebhookURL
+          REPORTING_TIMEZONE: !Ref ReportingTimezone
       Events:
         NotifyCostToSlack:
           Type: Schedule
