@@ -6,16 +6,11 @@ pub struct Cost {
     pub amount: f32,
     pub unit: String,
 }
-impl Cost {
-    fn from_metric_value(metric_value: &MetricValue) -> Self {
-        let parsed_amount = metric_value
-            .amount
-            .as_ref()
-            .unwrap()
-            .parse::<f32>()
-            .unwrap();
+impl From<MetricValue> for Cost {
+    fn from(from: MetricValue) -> Cost {
+        let parsed_amount = from.amount.as_ref().unwrap().parse::<f32>().unwrap();
 
-        let parsed_unit = metric_value.unit.as_ref().unwrap().to_string();
+        let parsed_unit = from.unit.as_ref().unwrap().to_string();
 
         Cost {
             amount: parsed_amount,
@@ -48,14 +43,15 @@ impl From<GetCostAndUsageResponse> for TotalCost {
             .as_ref()
             .unwrap()
             .get("AmortizedCost")
-            .unwrap();
+            .unwrap()
+            .clone();
 
         TotalCost {
             date_range: ReportedDateRange {
                 start_date: parsed_start_date,
                 end_date: parsed_end_date,
             },
-            cost: Cost::from_metric_value(amortized_cost),
+            cost: amortized_cost.into(),
         }
     }
 }
@@ -68,11 +64,17 @@ pub struct ServiceCost {
 impl From<Group> for ServiceCost {
     fn from(from: Group) -> ServiceCost {
         let service_name = &from.keys.as_ref().unwrap()[0];
-        let amortized_cost = &from.metrics.as_ref().unwrap().get("AmortizedCost").unwrap();
+        let amortized_cost = from
+            .metrics
+            .as_ref()
+            .unwrap()
+            .get("AmortizedCost")
+            .unwrap()
+            .clone();
 
         ServiceCost {
             service_name: service_name.to_string(),
-            cost: Cost::from_metric_value(amortized_cost),
+            cost: amortized_cost.into(),
         }
     }
 }
@@ -120,7 +122,7 @@ mod test_parsers {
             unit: "USD".to_string(),
         };
 
-        let actual_cost = Cost::from_metric_value(&input_metric_value);
+        let actual_cost: Cost = input_metric_value.into();
 
         assert_eq!(expected_cost, actual_cost);
     }
