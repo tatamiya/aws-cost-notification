@@ -3,7 +3,7 @@ use rusoto_ce::*;
 use rusoto_core::RusotoError;
 use std::collections::HashMap;
 
-use crate::cost_usage_client::GetCostAndUsage;
+use crate::cost_explorer::cost_usage_client::GetCostAndUsage;
 
 #[derive(Clone)]
 pub struct InputServiceCost {

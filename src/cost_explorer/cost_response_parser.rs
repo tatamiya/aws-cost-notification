@@ -100,7 +100,7 @@ mod test_parsers {
     use super::*;
     use rusoto_ce::*;
 
-    use crate::test_utils::{prepare_sample_response, InputServiceCost};
+    use crate::cost_explorer::test_utils::{prepare_sample_response, InputServiceCost};
 
     #[test]
     fn parse_timestamp_into_local_date_correctly() {

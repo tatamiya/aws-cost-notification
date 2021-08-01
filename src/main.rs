@@ -1,13 +1,10 @@
 mod cost_explorer;
-mod cost_response_parser;
-mod cost_usage_client;
 mod date_range;
 mod message_builder;
 mod slack_notifier;
-mod test_utils;
 
+use cost_explorer::cost_usage_client::{CostAndUsageClient, GetCostAndUsage};
 use cost_explorer::CostExplorerService;
-use cost_usage_client::{CostAndUsageClient, GetCostAndUsage};
 use date_range::ReportDateRange;
 use message_builder::NotificationMessage;
 use slack_notifier::{PostToSlack, SlackClient};
@@ -136,8 +133,8 @@ mod test_reporting_date {
 #[cfg(test)]
 mod integration_tests {
     use super::request_cost_and_notify;
+    use crate::cost_explorer::test_utils::{CostAndUsageClientStub, InputServiceCost};
     use crate::slack_notifier::PostToSlack;
-    use crate::test_utils::{CostAndUsageClientStub, InputServiceCost};
     use chrono::{Local, TimeZone};
     use slack_hook::{Error, Payload};
     use tokio;

@@ -1,10 +1,14 @@
+pub mod cost_response_parser;
+pub mod cost_usage_client;
+pub mod test_utils;
+
 use chrono::TimeZone;
 use rusoto_ce::{GetCostAndUsageRequest, GroupDefinition};
 use std::fmt::Display;
 
-use crate::cost_response_parser::{ServiceCost, TotalCost};
-use crate::cost_usage_client::GetCostAndUsage;
 use crate::date_range::ReportDateRange;
+use cost_response_parser::{ServiceCost, TotalCost};
+use cost_usage_client::GetCostAndUsage;
 
 pub struct CostExplorerService<T: GetCostAndUsage, U>
 where
@@ -71,10 +75,10 @@ where
 mod test_cost_explorer_service {
 
     use super::*;
-    use crate::cost_response_parser::{Cost, ReportedDateRange};
     use crate::date_range::ReportDateRange;
-    use crate::test_utils::{CostAndUsageClientStub, InputServiceCost};
     use chrono::{Local, TimeZone};
+    use cost_response_parser::{Cost, ReportedDateRange};
+    use test_utils::{CostAndUsageClientStub, InputServiceCost};
     use tokio;
 
     #[tokio::test]
