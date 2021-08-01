@@ -35,7 +35,7 @@ where
             build_cost_and_usage_request(&self.report_date_range, true);
 
         let res = self.client.get_cost_and_usage(request).await.unwrap();
-        TotalCost::from_response(&res)
+        res.into()
     }
 
     pub async fn request_service_costs(&self) -> Vec<ServiceCost> {

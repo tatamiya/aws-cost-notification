@@ -35,9 +35,9 @@ pub struct TotalCost {
     pub date_range: ReportedDateRange,
     pub cost: Cost,
 }
-impl TotalCost {
-    pub fn from_response(res: &GetCostAndUsageResponse) -> Self {
-        let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
+impl From<GetCostAndUsageResponse> for TotalCost {
+    fn from(from: GetCostAndUsageResponse) -> TotalCost {
+        let result_by_time = &from.results_by_time.as_ref().unwrap()[0];
         let time_period = result_by_time.time_period.as_ref().unwrap();
 
         let parsed_start_date = parse_timestamp_into_local_date(&time_period.start).unwrap();
@@ -65,25 +65,22 @@ pub struct ServiceCost {
     pub service_name: String,
     pub cost: Cost,
 }
-impl ServiceCost {
-    fn from_group(group: &Group) -> Self {
-        let service_name = &group.keys.as_ref().unwrap()[0];
-        let amortized_cost = group
-            .metrics
-            .as_ref()
-            .unwrap()
-            .get("AmortizedCost")
-            .unwrap();
+impl From<Group> for ServiceCost {
+    fn from(from: Group) -> ServiceCost {
+        let service_name = &from.keys.as_ref().unwrap()[0];
+        let amortized_cost = &from.metrics.as_ref().unwrap().get("AmortizedCost").unwrap();
 
         ServiceCost {
             service_name: service_name.to_string(),
-            cost: Cost::from_metric_value(&amortized_cost),
+            cost: Cost::from_metric_value(amortized_cost),
         }
     }
+}
+impl ServiceCost {
     pub fn from_response(res: &GetCostAndUsageResponse) -> Vec<Self> {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
         let groups = result_by_time.groups.as_ref().unwrap();
-        groups.iter().map(|x| ServiceCost::from_group(&x)).collect()
+        groups.iter().map(|x| x.clone().into()).collect()
     }
 }
 
@@ -150,7 +147,7 @@ mod test_parsers {
             },
         };
 
-        let actual_parsed_total_cost = TotalCost::from_response(&input_response);
+        let actual_parsed_total_cost: TotalCost = input_response.into();
 
         assert_eq!(expected_parsed_total_cost, actual_parsed_total_cost);
     }
