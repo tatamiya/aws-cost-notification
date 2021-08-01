@@ -169,4 +169,31 @@ mod integration_tests {
 
         assert!(res.is_ok());
     }
+
+    struct SlackClientFailStub {}
+    impl PostToSlack for SlackClientFailStub {
+        fn post(self, _payload: &Payload) -> Result<(), Error> {
+            Err(Error::from("Something Wrong!"))
+        }
+    }
+
+    #[tokio::test]
+    async fn slack_notification_fails() {
+        let cost_usage_client_stub = CostAndUsageClientStub {
+            service_costs: Some(vec![
+                InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
+                InputServiceCost::new("Amazon Elastic Compute Cloud", "31415.92"),
+            ]),
+            total_cost: Some(String::from("1234.56")),
+        };
+
+        let slack_client_stub = SlackClientFailStub {};
+
+        let reporting_date = Local.ymd(2021, 8, 1);
+
+        let res =
+            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+                .await;
+        assert!(res.is_err());
+    }
 }
