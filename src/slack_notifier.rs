@@ -39,8 +39,8 @@ impl PostToSlack for SlackClient {
     }
 }
 
-pub fn send_message_to_slack(
-    client: SlackClient,
+pub fn send_message_to_slack<S: PostToSlack>(
+    client: S,
     message: NotificationMessage,
 ) -> Result<(), Error> {
     let payload = PayloadBuilder::new()

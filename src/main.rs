@@ -7,10 +7,10 @@ mod slack_notifier;
 mod test_utils;
 
 use cost_explorer::CostExplorerService;
-use cost_usage_client::CostAndUsageClient;
+use cost_usage_client::{CostAndUsageClient, GetCostAndUsage};
 use date_range::ReportDateRange;
 use message_builder::NotificationMessage;
-use slack_notifier::SlackClient;
+use slack_notifier::{PostToSlack, SlackClient};
 
 use chrono::{Date, DateTime, Local, TimeZone};
 use chrono_tz::Tz;
@@ -49,9 +49,9 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     }
 }
 
-async fn request_cost_and_notify<T>(
-    cost_usage_client: CostAndUsageClient,
-    slack_client: SlackClient,
+async fn request_cost_and_notify<C: GetCostAndUsage, S: PostToSlack, T>(
+    cost_usage_client: C,
+    slack_client: S,
     reporting_date: Date<T>,
 ) -> Result<(), Box<dyn error::Error>>
 where
@@ -130,5 +130,43 @@ mod test_reporting_date {
         let actual_date = date_in_specified_timezone(input_datetime, tz_string);
 
         assert!(actual_date.is_err());
+    }
+}
+
+#[cfg(test)]
+mod integration_tests {
+    use super::request_cost_and_notify;
+    use crate::slack_notifier::PostToSlack;
+    use crate::test_utils::{CostAndUsageClientStub, InputServiceCost};
+    use chrono::{Local, TimeZone};
+    use slack_hook::{Error, Payload};
+    use tokio;
+
+    struct SlackClientStub {}
+    impl PostToSlack for SlackClientStub {
+        fn post(self, _payload: &Payload) -> Result<(), Error> {
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn run_correctly() {
+        let cost_usage_client_stub = CostAndUsageClientStub {
+            service_costs: Some(vec![
+                InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
+                InputServiceCost::new("Amazon Elastic Compute Cloud", "31415.92"),
+            ]),
+            total_cost: Some(String::from("1234.56")),
+        };
+
+        let slack_client_stub = SlackClientStub {};
+
+        let reporting_date = Local.ymd(2021, 8, 1);
+
+        let res =
+            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+                .await;
+
+        assert!(res.is_ok());
     }
 }
