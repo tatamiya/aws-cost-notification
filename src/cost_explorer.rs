@@ -67,7 +67,7 @@ where
         group_by: group_by,
         metrics: vec!["AmortizedCost".to_string()],
         next_page_token: None,
-        time_period: report_date_range.as_date_interval(),
+        time_period: report_date_range.into(),
     }
 }
 

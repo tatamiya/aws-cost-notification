@@ -90,11 +90,16 @@ where
             end_date: reporting_date,
         }
     }
-
-    pub fn as_date_interval(&self) -> DateInterval {
+}
+impl<T> From<&ReportDateRange<T>> for DateInterval
+where
+    T: TimeZone,
+    <T as TimeZone>::Offset: Display,
+{
+    fn from(from: &ReportDateRange<T>) -> DateInterval {
         DateInterval {
-            end: self.end_date.format("%Y-%m-%d").to_string(),
-            start: self.start_date.format("%Y-%m-%d").to_string(),
+            end: from.end_date.format("%Y-%m-%d").to_string(),
+            start: from.start_date.format("%Y-%m-%d").to_string(),
         }
     }
 }
@@ -144,7 +149,7 @@ mod date_range_tests {
 
     #[test]
     fn convert_into_date_interval_correctly() {
-        let input_date_range = ReportDateRange {
+        let input_date_range = &ReportDateRange {
             start_date: Local.ymd(2021, 7, 1),
             end_date: Local.ymd(2021, 7, 22),
         };
@@ -154,7 +159,7 @@ mod date_range_tests {
             end: "2021-07-22".to_string(),
         };
 
-        let actual_date_interval = input_date_range.as_date_interval();
+        let actual_date_interval: DateInterval = input_date_range.into();
 
         assert_eq!(expected_date_interval, actual_date_interval);
     }
