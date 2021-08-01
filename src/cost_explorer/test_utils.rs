@@ -17,18 +17,19 @@ impl InputServiceCost {
             cost: String::from(cost),
         }
     }
-
-    fn as_group(&self) -> Group {
+}
+impl From<InputServiceCost> for Group {
+    fn from(from: InputServiceCost) -> Group {
         let mut metrics = HashMap::new();
         metrics.insert(
             String::from("AmortizedCost"),
             MetricValue {
-                amount: Some(self.cost.clone()),
+                amount: Some(from.cost.clone()),
                 unit: Some(String::from("USD")),
             },
         );
         Group {
-            keys: Some(vec![self.service_name.clone()]),
+            keys: Some(vec![from.service_name.clone()]),
             metrics: Some(metrics),
         }
     }
@@ -48,7 +49,7 @@ pub fn prepare_sample_response(
         },
     );
     let input_grouped_costs: Option<Vec<Group>> = match service_costs {
-        Some(service_costs) => Some(service_costs.iter().map(|x| x.as_group()).collect()),
+        Some(service_costs) => Some(service_costs.iter().map(|x| x.clone().into()).collect()),
         None => None,
     };
 
