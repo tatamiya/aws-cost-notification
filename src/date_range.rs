@@ -22,8 +22,8 @@ mod test_date_with_timezone {
 
     #[test]
     fn convert_timezone_correctly() {
-        let input_datetime = Local
-            .datetime_from_str("2021-07-31 12:00:00 UTC", "%Y-%m-%d %H:%M:%S %Z")
+        let input_datetime = Utc
+            .datetime_from_str("2021-07-31 12:00:00", "%Y-%m-%d %H:%M:%S")
             .unwrap();
 
         let tz_string = "Asia/Tokyo".to_string();
@@ -34,7 +34,7 @@ mod test_date_with_timezone {
     }
 
     #[test]
-    fn with_different_date() {
+    fn increment_a_day_after_timezone_conversion() {
         let input_datetime = Utc
             .datetime_from_str("2021-07-31 15:00:00", "%Y-%m-%d %H:%M:%S")
             .unwrap();
