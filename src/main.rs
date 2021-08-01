@@ -195,4 +195,41 @@ mod integration_tests {
                 .await;
         assert!(res.is_err());
     }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn panic_when_total_cost_is_empty() {
+        let cost_usage_client_stub = CostAndUsageClientStub {
+            service_costs: Some(vec![
+                InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
+                InputServiceCost::new("Amazon Elastic Compute Cloud", "31415.92"),
+            ]),
+            total_cost: None,
+        };
+
+        let slack_client_stub = SlackClientStub { fail: false };
+
+        let reporting_date = Local.ymd(2021, 8, 1);
+
+        let _res =
+            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+                .await;
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn panic_when_service_costs_is_empty() {
+        let cost_usage_client_stub = CostAndUsageClientStub {
+            service_costs: None,
+            total_cost: Some(String::from("1234.56")),
+        };
+
+        let slack_client_stub = SlackClientStub { fail: false };
+
+        let reporting_date = Local.ymd(2021, 8, 1);
+
+        let _res =
+            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+                .await;
+    }
 }
