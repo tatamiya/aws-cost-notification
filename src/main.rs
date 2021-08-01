@@ -1,12 +1,12 @@
 mod cost_explorer;
-mod date_range;
 mod message_builder;
+mod reporting_date;
 mod slack_notifier;
 
 use cost_explorer::cost_usage_client::{CostAndUsageClient, GetCostAndUsage};
 use cost_explorer::CostExplorerService;
-use date_range::{date_in_specified_timezone, ReportDateRange};
 use message_builder::NotificationMessage;
+use reporting_date::{date_in_specified_timezone, ReportDateRange};
 use slack_notifier::{PostToSlack, SlackClient};
 
 use chrono::{Date, Local, TimeZone};

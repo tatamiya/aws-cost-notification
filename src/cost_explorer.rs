@@ -6,7 +6,7 @@ use chrono::TimeZone;
 use rusoto_ce::{GetCostAndUsageRequest, GroupDefinition};
 use std::fmt::Display;
 
-use crate::date_range::ReportDateRange;
+use crate::reporting_date::ReportDateRange;
 use cost_response_parser::{ServiceCost, TotalCost};
 use cost_usage_client::GetCostAndUsage;
 
@@ -75,7 +75,7 @@ where
 mod test_cost_explorer_service {
 
     use super::*;
-    use crate::date_range::ReportDateRange;
+    use crate::reporting_date::ReportDateRange;
     use chrono::{Local, TimeZone};
     use cost_response_parser::{Cost, ReportedDateRange};
     use test_utils::{CostAndUsageClientStub, InputServiceCost};
@@ -144,7 +144,7 @@ mod test_cost_explorer_service {
 #[cfg(test)]
 mod test_build_request {
     use super::*;
-    use crate::date_range::ReportDateRange;
+    use crate::reporting_date::ReportDateRange;
     use chrono::{Local, TimeZone};
     use rusoto_ce::DateInterval;
 
