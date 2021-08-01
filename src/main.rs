@@ -142,10 +142,16 @@ mod integration_tests {
     use slack_hook::{Error, Payload};
     use tokio;
 
-    struct SlackClientStub {}
+    struct SlackClientStub {
+        fail: bool,
+    }
     impl PostToSlack for SlackClientStub {
         fn post(self, _payload: &Payload) -> Result<(), Error> {
-            Ok(())
+            if self.fail {
+                Err(Error::from("Something Wrong!"))
+            } else {
+                Ok(())
+            }
         }
     }
 
@@ -159,7 +165,7 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackClientStub {};
+        let slack_client_stub = SlackClientStub { fail: false };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
@@ -168,13 +174,6 @@ mod integration_tests {
                 .await;
 
         assert!(res.is_ok());
-    }
-
-    struct SlackClientFailStub {}
-    impl PostToSlack for SlackClientFailStub {
-        fn post(self, _payload: &Payload) -> Result<(), Error> {
-            Err(Error::from("Something Wrong!"))
-        }
     }
 
     #[tokio::test]
@@ -187,7 +186,7 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackClientFailStub {};
+        let slack_client_stub = SlackClientStub { fail: true };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
