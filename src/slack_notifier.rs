@@ -18,6 +18,10 @@ impl NotificationMessage {
     }
 }
 
+pub trait PostToSlack {
+    fn post(self, payload: &Payload) -> Result<(), Error>;
+}
+
 pub struct SlackClient {
     slack: Slack,
 }
@@ -28,6 +32,8 @@ impl SlackClient {
         let slack = Slack::new(webhook_url.as_ref()).unwrap();
         SlackClient { slack: slack }
     }
+}
+impl PostToSlack for SlackClient {
     fn post(self, payload: &Payload) -> Result<(), Error> {
         self.slack.send(&payload)
     }
