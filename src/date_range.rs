@@ -1,6 +1,64 @@
-use chrono::{Date, Datelike, TimeZone};
+use chrono::{Date, DateTime, Datelike, TimeZone};
+use chrono_tz::Tz;
 use rusoto_ce::DateInterval;
+use std::error;
 use std::fmt::Display;
+
+pub fn date_in_specified_timezone<T: TimeZone>(
+    datetime: DateTime<T>,
+    tz_string: String,
+) -> Result<Date<Tz>, Box<dyn error::Error>> {
+    let timezone: Result<Tz, _> = tz_string.parse();
+    match timezone {
+        Ok(timezone) => Ok(datetime.with_timezone(&timezone).date()),
+        Err(e) => Err(format!("Invalid Timezone!: {}", e).into()),
+    }
+}
+
+#[cfg(test)]
+mod test_date_with_timezone {
+    use super::date_in_specified_timezone;
+    use chrono::{Local, TimeZone, Utc};
+
+    #[test]
+    fn convert_timezone_correctly() {
+        let input_datetime = Local
+            .datetime_from_str("2021-07-31 12:00:00 UTC", "%Y-%m-%d %H:%M:%S %Z")
+            .unwrap();
+
+        let tz_string = "Asia/Tokyo".to_string();
+
+        let actual_date = date_in_specified_timezone(input_datetime, tz_string).unwrap();
+
+        assert_eq!("2021-07-31JST", format!("{}", actual_date));
+    }
+
+    #[test]
+    fn with_different_date() {
+        let input_datetime = Utc
+            .datetime_from_str("2021-07-31 15:00:00", "%Y-%m-%d %H:%M:%S")
+            .unwrap();
+
+        let tz_string = "Asia/Tokyo".to_string();
+
+        let actual_date = date_in_specified_timezone(input_datetime, tz_string).unwrap();
+
+        assert_eq!("2021-08-01JST", format!("{}", actual_date));
+    }
+
+    #[test]
+    fn return_error_for_invalid_timezone() {
+        let input_datetime = Local
+            .datetime_from_str("2021-07-31 15:05:00 UTC", "%Y-%m-%d %H:%M:%S %Z")
+            .unwrap();
+
+        let tz_string = "Invalid/Timezone".to_string();
+
+        let actual_date = date_in_specified_timezone(input_datetime, tz_string);
+
+        assert!(actual_date.is_err());
+    }
+}
 
 #[derive(Debug)]
 pub struct ReportDateRange<T>
