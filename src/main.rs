@@ -177,7 +177,7 @@ mod integration_tests {
     }
 
     #[tokio::test]
-    async fn slack_notification_fails() {
+    async fn return_error_when_slack_notification_fails() {
         let cost_usage_client_stub = CostAndUsageClientStub {
             service_costs: Some(vec![
                 InputServiceCost::new("Amazon Simple Storage Service", "1234.56"),
