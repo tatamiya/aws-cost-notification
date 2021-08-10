@@ -1,6 +1,15 @@
+//! # AWS Cost Notifier
+//!
+//! A Lambda function to retrieve AWS costs from Cost Explorer
+//! and notify them to Slack.
+
+/// Send requests to Cost Explorer and retrieve total cost and costs for each service.
 mod cost_explorer;
+/// Build notification message from API responses
 mod message_builder;
+/// Set the period to retrieve the AWS costs.
 mod reporting_date;
+/// Send a message to notify the AWS costs to Slack.
 mod slack_notifier;
 
 use cost_explorer::cost_usage_client::{CostAndUsageClient, GetCostAndUsage};
@@ -45,6 +54,9 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     }
 }
 
+/// The core function of the whole process.
+/// You can execute integration tests by using client stubs and designating
+/// the reporting date.
 async fn request_cost_and_notify<C: GetCostAndUsage, S: PostToSlack, T>(
     cost_usage_client: C,
     slack_client: S,
