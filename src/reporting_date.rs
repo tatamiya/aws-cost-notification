@@ -4,6 +4,7 @@ use rusoto_ce::DateInterval;
 use std::error;
 use std::fmt::Display;
 
+/// Convert the timezone of the input datetime into the designated one
 pub fn date_in_specified_timezone<T: TimeZone>(
     datetime: DateTime<T>,
     tz_string: String,
@@ -60,6 +61,8 @@ mod test_date_with_timezone {
     }
 }
 
+/// The date period to retrive the AWS costs.
+/// It is used for sending requests to Cost Explorer.
 #[derive(Debug)]
 pub struct ReportDateRange<T>
 where
@@ -74,6 +77,14 @@ where
     T: TimeZone,
     <T as TimeZone>::Offset: Display,
 {
+    /// Set the date period to retrieve the AWS costs.
+    ///
+    /// The period is from the first date of the month to the designated reporting date.
+    /// (e.g. 4/15 -> 4/1 ~ 15)
+    ///
+    /// If the reporting date is the first date of the month,
+    /// the start date is set as the first date of the previous month.
+    /// (e.g. 4/1 -> 3/1 ~ 4/1)
     pub fn new(reporting_date: Date<T>) -> Self {
         let first_day_of_month = reporting_date.with_day(1).unwrap();
 
