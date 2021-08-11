@@ -1,6 +1,7 @@
-/// Parse the Cost Explorer API Response
+/// Parse the CostExplorer API Response
 pub mod cost_response_parser;
-/// Client to retrieve the AWS costs. It wraps CostExplorerClient.
+/// Client to retrieve the AWS costs.
+/// It wraps [CostExplorerClient](https://docs.rs/rusoto_ce/0.47.0/rusoto_ce/struct.CostExplorerClient.html).
 pub mod cost_usage_client;
 /// Functions and structs used for tests.
 pub mod test_utils;
@@ -13,12 +14,15 @@ use crate::reporting_date::ReportDateRange;
 use cost_response_parser::{ServiceCost, TotalCost};
 use cost_usage_client::GetCostAndUsage;
 
+/// Object to send request to CostExplorer API and retrieve AWS costs.
 pub struct CostExplorerService<C: GetCostAndUsage, T>
 where
     T: TimeZone,
     <T as chrono::TimeZone>::Offset: Display,
 {
+    /// CostAndUsageClient
     client: C,
+    /// The date period to retrieve the costs.
     report_date_range: ReportDateRange<T>,
 }
 impl<C: GetCostAndUsage, T> CostExplorerService<C, T>
@@ -26,6 +30,7 @@ where
     T: TimeZone,
     <T as chrono::TimeZone>::Offset: Display,
 {
+    /// Constructor method
     pub fn new(client: C, report_date_range: ReportDateRange<T>) -> Self {
         CostExplorerService {
             client: client,
@@ -33,6 +38,8 @@ where
         }
     }
 
+    /// Sends request to GetCostAndUsage endpoint of CostExplorer API
+    /// and returns parsed total cost.
     pub async fn request_total_cost(&self) -> TotalCost {
         let request: GetCostAndUsageRequest =
             build_cost_and_usage_request(&self.report_date_range, true);
@@ -41,6 +48,8 @@ where
         res.into()
     }
 
+    /// Sends request to GetCostAndUsage endpoint of CostExplorer API
+    /// and returns a vector of parsed service costs.
     pub async fn request_service_costs(&self) -> Vec<ServiceCost> {
         let request: GetCostAndUsageRequest =
             build_cost_and_usage_request(&self.report_date_range, false);

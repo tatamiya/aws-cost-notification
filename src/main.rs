@@ -3,7 +3,7 @@
 //! A Lambda function to retrieve AWS costs from Cost Explorer
 //! and notify them to Slack.
 
-/// Send requests to Cost Explorer and retrieve total cost and costs for each service.
+/// Call AWS CostExplorer API and retrieve total cost and costs for each service.
 mod cost_explorer;
 /// Build notification message from API responses
 mod message_builder;
