@@ -13,20 +13,20 @@ use crate::reporting_date::ReportDateRange;
 use cost_response_parser::{ServiceCost, TotalCost};
 use cost_usage_client::GetCostAndUsage;
 
-pub struct CostExplorerService<T: GetCostAndUsage, U>
+pub struct CostExplorerService<C: GetCostAndUsage, T>
 where
-    U: TimeZone,
-    <U as chrono::TimeZone>::Offset: Display,
+    T: TimeZone,
+    <T as chrono::TimeZone>::Offset: Display,
 {
-    client: T,
-    report_date_range: ReportDateRange<U>,
+    client: C,
+    report_date_range: ReportDateRange<T>,
 }
-impl<T: GetCostAndUsage, U> CostExplorerService<T, U>
+impl<C: GetCostAndUsage, T> CostExplorerService<C, T>
 where
-    U: TimeZone,
-    <U as chrono::TimeZone>::Offset: Display,
+    T: TimeZone,
+    <T as chrono::TimeZone>::Offset: Display,
 {
-    pub fn new(client: T, report_date_range: ReportDateRange<U>) -> Self {
+    pub fn new(client: C, report_date_range: ReportDateRange<T>) -> Self {
         CostExplorerService {
             client: client,
             report_date_range: report_date_range,
@@ -49,13 +49,13 @@ where
     }
 }
 
-fn build_cost_and_usage_request<U>(
-    report_date_range: &ReportDateRange<U>,
+fn build_cost_and_usage_request<T>(
+    report_date_range: &ReportDateRange<T>,
     is_total: bool,
 ) -> GetCostAndUsageRequest
 where
-    U: TimeZone,
-    <U as chrono::TimeZone>::Offset: Display,
+    T: TimeZone,
+    <T as chrono::TimeZone>::Offset: Display,
 {
     let group_by: Option<Vec<GroupDefinition>> = match is_total {
         true => None,
