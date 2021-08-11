@@ -18,7 +18,7 @@ pub struct CostAndUsageClient(CostExplorerClient);
 
 impl CostAndUsageClient {
     pub fn new() -> Self {
-        // NOTE: Region must not be ap-northeast-1 because
+        // NOTE: Region must not be ap-northeast-1
         // because endpoint https://ce.ap-northeast1.amazonaws.com/ does not exist
         CostAndUsageClient(CostExplorerClient::new(Region::UsEast1))
     }
