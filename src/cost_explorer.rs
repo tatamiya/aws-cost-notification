@@ -1,5 +1,8 @@
+/// Parse the Cost Explorer API Response
 pub mod cost_response_parser;
+/// Client to retrieve the AWS costs. It wraps CostExplorerClient.
 pub mod cost_usage_client;
+/// Functions and structs used for tests.
 pub mod test_utils;
 
 use chrono::TimeZone;
