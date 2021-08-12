@@ -60,6 +60,14 @@ impl From<GetCostAndUsageResponse> for TotalCost {
     }
 }
 
+/// Parse the timestamp in the `time_period` field of the API response.
+fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<Local>> {
+    let parsed_start_date = NaiveDate::parse_from_str(timestamp, "%Y-%m-%d")
+        .ok()
+        .unwrap();
+    Local.from_local_date(&parsed_start_date)
+}
+
 /// The cost of a service.
 #[derive(Debug, PartialEq, Clone)]
 pub struct ServiceCost {
@@ -91,14 +99,6 @@ impl ServiceCost {
         let groups = result_by_time.groups.as_ref().unwrap();
         groups.iter().map(|x| x.clone().into()).collect()
     }
-}
-
-/// Parse the timestamp in the `time_period` field of the API response.
-fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<Local>> {
-    let parsed_start_date = NaiveDate::parse_from_str(timestamp, "%Y-%m-%d")
-        .ok()
-        .unwrap();
-    Local.from_local_date(&parsed_start_date)
 }
 
 #[cfg(test)]
