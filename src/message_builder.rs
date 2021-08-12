@@ -85,8 +85,14 @@ impl TotalCost {
 /// Cost notification message to send to Slack.
 pub struct NotificationMessage {
     /// Headline message to display the total cost
+    ///
+    /// # Example
+    /// `07/01~07/11の請求額は、1.62 USDです。`
     pub header: String,
     /// Body of the message to display costs for each service
+    ///
+    /// # Example
+    /// `・AWS CloudTrail: 1.23 USD\n・AWS Cost Explorer: 0.12 USD`
     pub body: String,
 }
 impl NotificationMessage {
