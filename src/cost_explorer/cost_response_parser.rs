@@ -1,6 +1,7 @@
 use chrono::{Date, Local, NaiveDate, TimeZone};
 use rusoto_ce::{GetCostAndUsageResponse, Group, MetricValue};
 
+/// AWS Cost
 #[derive(Debug, PartialEq, Clone, PartialOrd)]
 pub struct Cost {
     pub amount: f32,
@@ -19,18 +20,21 @@ impl From<MetricValue> for Cost {
     }
 }
 
+/// Period of cost aggregation in the API response.
 #[derive(Debug, PartialEq)]
 pub struct ReportedDateRange {
     pub start_date: Date<Local>,
     pub end_date: Date<Local>,
 }
 
+/// Total AWS cost during `date_range`.
 #[derive(Debug, PartialEq)]
 pub struct TotalCost {
     pub date_range: ReportedDateRange,
     pub cost: Cost,
 }
 impl From<GetCostAndUsageResponse> for TotalCost {
+    /// Parse the API response into `TotalCost`
     fn from(from: GetCostAndUsageResponse) -> TotalCost {
         let result_by_time = &from.results_by_time.as_ref().unwrap()[0];
         let time_period = result_by_time.time_period.as_ref().unwrap();
@@ -56,12 +60,14 @@ impl From<GetCostAndUsageResponse> for TotalCost {
     }
 }
 
+/// The cost of a service.
 #[derive(Debug, PartialEq, Clone)]
 pub struct ServiceCost {
     pub service_name: String,
     pub cost: Cost,
 }
 impl From<Group> for ServiceCost {
+    /// Parse `Group` in the API response into ServiceCost.
     fn from(from: Group) -> ServiceCost {
         let service_name = &from.keys.as_ref().unwrap()[0];
         let amortized_cost = from
@@ -79,6 +85,7 @@ impl From<Group> for ServiceCost {
     }
 }
 impl ServiceCost {
+    /// Parse the API response into a vector of `ServiceCost`
     pub fn from_response(res: &GetCostAndUsageResponse) -> Vec<Self> {
         let result_by_time = &res.results_by_time.as_ref().unwrap()[0];
         let groups = result_by_time.groups.as_ref().unwrap();
@@ -86,6 +93,7 @@ impl ServiceCost {
     }
 }
 
+/// Parse the timestamp in the `time_period` field of the API response.
 fn parse_timestamp_into_local_date(timestamp: &str) -> chrono::LocalResult<Date<Local>> {
     let parsed_start_date = NaiveDate::parse_from_str(timestamp, "%Y-%m-%d")
         .ok()
