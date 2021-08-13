@@ -11,11 +11,11 @@ build-NotifyCostToSlack:
 	cp ./target/release/bootstrap ${ARTIFACTS_DIR}
 
 # Build the Lambda function and the SAM template.
-# Build options should described in samconfig.toml.
+# Build options should be described in samconfig.toml.
 build:
 	sam build
 
 # Deploy the Lambda function to AWS.
-# Deploy options should described in samconfig.toml.
+# Deploy options should be described in samconfig.toml.
 deploy:
 	sam deploy
