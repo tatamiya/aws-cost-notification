@@ -5,6 +5,7 @@ use std::collections::HashMap;
 
 use crate::cost_explorer::cost_usage_client::GetCostAndUsage;
 
+/// Object used in tests to set the service name and its cost.
 #[derive(Clone)]
 pub struct InputServiceCost {
     service_name: String,
@@ -19,6 +20,8 @@ impl InputServiceCost {
     }
 }
 impl From<InputServiceCost> for Group {
+    /// Convert the `InputServiceCost` object into Group object,
+    /// which is used for building a sample Cost Explorer API response.
     fn from(from: InputServiceCost) -> Group {
         let mut metrics = HashMap::new();
         metrics.insert(
@@ -35,6 +38,7 @@ impl From<InputServiceCost> for Group {
     }
 }
 
+/// Prepare sample object of Cost Explorer API response.
 pub fn prepare_sample_response(
     date_interval: Option<DateInterval>,
     total_cost: Option<String>,
@@ -66,12 +70,21 @@ pub fn prepare_sample_response(
     }
 }
 
+/// A Stub of `CostAndUsageClient` used for testing functions and methods
+/// which call CostExplorer API.
+/// `service_costs` and `total_cost` fields are used in
+/// the mock API response.
 pub struct CostAndUsageClientStub {
     pub service_costs: Option<Vec<InputServiceCost>>,
     pub total_cost: Option<String>,
 }
 #[async_trait]
 impl GetCostAndUsage for CostAndUsageClientStub {
+    /// Return the mock of CostExplorer API response.
+    /// If `group_by` field of the request object is empty,
+    /// it returns a response object which has total cost.
+    /// Otherwise, the response object has service costs
+    /// and its total cost is None.
     async fn get_cost_and_usage(
         &self,
         input: GetCostAndUsageRequest,
