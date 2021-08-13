@@ -8,6 +8,7 @@ extern crate slack_hook;
 use slack_hook::{Attachment, Error, HexColor, Payload, PayloadBuilder, Slack, SlackText, TryFrom};
 
 impl NotificationMessage {
+    /// Create `Attachment` object of Slack message from `NotificationMessage` object.
     fn as_attachment(self, color: &str) -> Attachment {
         Attachment {
             pretext: Some(SlackText::new(self.header)),
@@ -18,14 +19,20 @@ impl NotificationMessage {
     }
 }
 
+/// Trait to post message to Slack.
 pub trait PostToSlack {
     fn post(self, payload: &Payload) -> Result<(), Error>;
 }
 
+/// Client object of Slack to send notification message.
 pub struct SlackClient {
+    /// `Slack` object which is initialized with Webhook URL.
     slack: Slack,
 }
 impl SlackClient {
+    /// Construct a `SlackClient` object.
+    /// In this method, `Slack` object is initialized with Webhook URL
+    /// which is set as an environment variable.
     pub fn new() -> Self {
         dotenv().ok();
         let webhook_url = dotenv::var("SLACK_WEBHOOK_URL").expect("Webhook URL not found.");
@@ -34,11 +41,14 @@ impl SlackClient {
     }
 }
 impl PostToSlack for SlackClient {
+    /// Post message to Slack
     fn post(self, payload: &Payload) -> Result<(), Error> {
         self.slack.send(&payload)
     }
 }
 
+/// Send cost notification message to Slack via a
+/// designated Slack Client.
 pub fn send_message_to_slack<S: PostToSlack>(
     client: S,
     message: NotificationMessage,
