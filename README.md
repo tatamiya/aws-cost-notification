@@ -54,6 +54,12 @@ Build the code and AWS Serverless Application Model (SAM) template.
 make build
 ```
 
+When you build the template for the first time, you have to build docker container image at first:
+
+```sh
+make build-image
+```
+
 ## Deploy
 
 Deploy the Lambda function by SAM.
