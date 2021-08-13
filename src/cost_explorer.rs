@@ -58,6 +58,10 @@ where
     }
 }
 
+/// Build the request object of the CostExplorer API.
+/// The data aquisition period is designated by `report_date_range`.
+/// If `is_total` is true, it builds request for total cost.
+/// Otherwise, it requests the costs grouped by AWS services.
 fn build_cost_and_usage_request<T>(
     report_date_range: &ReportDateRange<T>,
     is_total: bool,
