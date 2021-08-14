@@ -48,13 +48,14 @@ stack_name = "cost-notifier-stack"
 
 ## Build
 
-Build the code and AWS Serverless Application Model (SAM) template.
+Compile the code of the Lambda function and build AWS Serverless Application Model (SAM) template.
 
 ```sh
 make build
 ```
 
-When you build the template for the first time, you have to build docker container image at first:
+To avoid complicated local environment settings, Docker is used for compling the code ([see here](https://github.com/awslabs/aws-lambda-rust-runtime/issues/17)).
+When you compile the code for the first time, you have to build docker container image at first:
 
 ```sh
 make build-image

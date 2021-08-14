@@ -1,3 +1,4 @@
+# Build Docker image to compile and build the Lambda function.
 # https://github.com/awslabs/aws-lambda-rust-runtime/issues/17#issuecomment-453635842
 FROM lambci/lambda:build-provided
 RUN curl https://sh.rustup.rs -sSf | /bin/sh -s -- -y
