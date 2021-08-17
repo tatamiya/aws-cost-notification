@@ -57,9 +57,9 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
 /// The core function of the whole process.
 /// You can execute integration tests by using client stubs and designating
 /// the reporting date.
-async fn request_cost_and_notify<C: GetCostAndUsage, S: SendMessage, T>(
+async fn request_cost_and_notify<C: GetCostAndUsage, N: SendMessage, T>(
     cost_usage_client: C,
-    slack_client: S,
+    notifier: N,
     reporting_date: Date<T>,
 ) -> Result<(), Box<dyn error::Error>>
 where
@@ -74,7 +74,7 @@ where
 
     let notification_message = NotificationMessage::new(total_cost, service_costs);
 
-    let res = slack_client.send(notification_message);
+    let res = notifier.send(notification_message);
 
     match res {
         Ok(_) => {
