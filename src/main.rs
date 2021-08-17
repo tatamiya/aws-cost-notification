@@ -127,12 +127,12 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackNotifierStub { fail: false };
+        let slack_notifier_stub = SlackNotifierStub { fail: false };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
         let res =
-            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+            request_cost_and_notify(cost_usage_client_stub, slack_notifier_stub, reporting_date)
                 .await;
 
         assert!(res.is_ok());
@@ -148,12 +148,12 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackNotifierStub { fail: true };
+        let slack_notifier_stub = SlackNotifierStub { fail: true };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
         let res =
-            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+            request_cost_and_notify(cost_usage_client_stub, slack_notifier_stub, reporting_date)
                 .await;
         assert!(res.is_err());
     }
@@ -169,12 +169,12 @@ mod integration_tests {
             total_cost: None,
         };
 
-        let slack_client_stub = SlackNotifierStub { fail: false };
+        let slack_notifier_stub = SlackNotifierStub { fail: false };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
         let _res =
-            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+            request_cost_and_notify(cost_usage_client_stub, slack_notifier_stub, reporting_date)
                 .await;
     }
 
@@ -186,12 +186,12 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackNotifierStub { fail: false };
+        let slack_notifier_stub = SlackNotifierStub { fail: false };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
         let _res =
-            request_cost_and_notify(cost_usage_client_stub, slack_client_stub, reporting_date)
+            request_cost_and_notify(cost_usage_client_stub, slack_notifier_stub, reporting_date)
                 .await;
     }
 }
