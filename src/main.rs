@@ -35,7 +35,7 @@ async fn main() -> Result<(), Error> {
 
 async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     let cost_usage_client = CostAndUsageClient::new();
-    let slack_client = SlackNotifier::new();
+    let slack_notifier = SlackNotifier::new();
 
     dotenv().ok();
     let tz_string = dotenv::var("REPORTING_TIMEZONE").expect("REPORTING_TIMEZONE not found");
@@ -47,7 +47,7 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
         reporting_date
     );
 
-    let res = request_cost_and_notify(cost_usage_client, slack_client, reporting_date).await;
+    let res = request_cost_and_notify(cost_usage_client, slack_notifier, reporting_date).await;
     match res {
         Ok(_) => Ok(()),
         Err(e) => Err(e.to_string().into()),
