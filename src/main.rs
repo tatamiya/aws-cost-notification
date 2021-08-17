@@ -63,7 +63,7 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
 /// If the `reporting_date` is the first date of the month,
 /// the start date is set to the first date of the previous month.
 ///
-/// You can execute integration tests by using client stubs and designating
+/// You can execute integration tests by using stubs and designating
 /// the reporting date.
 async fn request_cost_and_notify<C: GetCostAndUsage, N: SendMessage, T>(
     cost_usage_client: C,
