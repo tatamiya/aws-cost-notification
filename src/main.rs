@@ -33,7 +33,7 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-/// The function called from AWS Lambda
+/// The function executed in AWS Lambda.
 async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     let cost_usage_client = CostAndUsageClient::new();
     let slack_notifier = SlackNotifier::new();
