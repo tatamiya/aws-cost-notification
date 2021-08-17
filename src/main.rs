@@ -16,7 +16,7 @@ use cost_explorer::cost_usage_client::{CostAndUsageClient, GetCostAndUsage};
 use cost_explorer::CostExplorerService;
 use message_builder::NotificationMessage;
 use reporting_date::{date_in_specified_timezone, ReportDateRange};
-use slack_notifier::{PostToSlack, SlackClient};
+use slack_notifier::{SendMessage, SlackClient};
 
 use chrono::{Date, Local, TimeZone};
 use dotenv::dotenv;
@@ -57,7 +57,7 @@ async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
 /// The core function of the whole process.
 /// You can execute integration tests by using client stubs and designating
 /// the reporting date.
-async fn request_cost_and_notify<C: GetCostAndUsage, S: PostToSlack, T>(
+async fn request_cost_and_notify<C: GetCostAndUsage, S: SendMessage, T>(
     cost_usage_client: C,
     slack_client: S,
     reporting_date: Date<T>,
@@ -74,7 +74,7 @@ where
 
     let notification_message = NotificationMessage::new(total_cost, service_costs);
 
-    let res = slack_notifier::send_message_to_slack(slack_client, notification_message);
+    let res = slack_client.send(notification_message);
 
     match res {
         Ok(_) => {
@@ -89,16 +89,17 @@ where
 mod integration_tests {
     use super::request_cost_and_notify;
     use crate::cost_explorer::test_utils::{CostAndUsageClientStub, InputServiceCost};
-    use crate::slack_notifier::PostToSlack;
+    use crate::message_builder::NotificationMessage;
+    use crate::slack_notifier::SendMessage;
     use chrono::{Local, TimeZone};
-    use slack_hook::{Error, Payload};
+    use slack_hook::Error;
     use tokio;
 
     struct SlackClientStub {
         fail: bool,
     }
-    impl PostToSlack for SlackClientStub {
-        fn post(self, _payload: &Payload) -> Result<(), Error> {
+    impl SendMessage for SlackClientStub {
+        fn send(self, _message: NotificationMessage) -> Result<(), Error> {
             if self.fail {
                 Err(Error::from("Something Wrong!"))
             } else {

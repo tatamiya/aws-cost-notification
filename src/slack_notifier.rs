@@ -5,7 +5,7 @@ use std::result::Result;
 
 extern crate slack_hook;
 
-use slack_hook::{Attachment, Error, HexColor, Payload, PayloadBuilder, Slack, SlackText, TryFrom};
+use slack_hook::{Attachment, Error, HexColor, PayloadBuilder, Slack, SlackText, TryFrom};
 
 impl NotificationMessage {
     /// Create `Attachment` object of Slack message from `NotificationMessage` object.
@@ -19,9 +19,9 @@ impl NotificationMessage {
     }
 }
 
-/// Trait to post message to Slack.
-pub trait PostToSlack {
-    fn post(self, payload: &Payload) -> Result<(), Error>;
+/// Trait to send message to Slack.
+pub trait SendMessage {
+    fn send(self, message: NotificationMessage) -> Result<(), Error>;
 }
 
 /// Client object of Slack to send notification message.
@@ -40,25 +40,16 @@ impl SlackClient {
         SlackClient { slack: slack }
     }
 }
-impl PostToSlack for SlackClient {
-    /// Post message to Slack
-    fn post(self, payload: &Payload) -> Result<(), Error> {
+impl SendMessage for SlackClient {
+    /// Send message to Slack
+    fn send(self, message: NotificationMessage) -> Result<(), Error> {
+        let payload = PayloadBuilder::new()
+            .attachments(vec![message.as_attachment("#36a64f")])
+            .build()
+            .unwrap();
+
         self.slack.send(&payload)
     }
-}
-
-/// Send cost notification message to Slack via a
-/// designated Slack Client.
-pub fn send_message_to_slack<S: PostToSlack>(
-    client: S,
-    message: NotificationMessage,
-) -> Result<(), Error> {
-    let payload = PayloadBuilder::new()
-        .attachments(vec![message.as_attachment("#36a64f")])
-        .build()
-        .unwrap();
-
-    client.post(&payload)
 }
 
 #[cfg(test)]
