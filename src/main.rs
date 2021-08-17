@@ -16,7 +16,7 @@ use cost_explorer::cost_usage_client::{CostAndUsageClient, GetCostAndUsage};
 use cost_explorer::CostExplorerService;
 use message_builder::NotificationMessage;
 use reporting_date::{date_in_specified_timezone, ReportDateRange};
-use slack_notifier::{SendMessage, SlackClient};
+use slack_notifier::{SendMessage, SlackNotifier};
 
 use chrono::{Date, Local, TimeZone};
 use dotenv::dotenv;
@@ -35,7 +35,7 @@ async fn main() -> Result<(), Error> {
 
 async fn lambda_handler(_: Value, _: Context) -> Result<(), Error> {
     let cost_usage_client = CostAndUsageClient::new();
-    let slack_client = SlackClient::new();
+    let slack_client = SlackNotifier::new();
 
     dotenv().ok();
     let tz_string = dotenv::var("REPORTING_TIMEZONE").expect("REPORTING_TIMEZONE not found");
@@ -95,10 +95,10 @@ mod integration_tests {
     use slack_hook::Error;
     use tokio;
 
-    struct SlackClientStub {
+    struct SlackNotifierStub {
         fail: bool,
     }
-    impl SendMessage for SlackClientStub {
+    impl SendMessage for SlackNotifierStub {
         fn send(self, _message: NotificationMessage) -> Result<(), Error> {
             if self.fail {
                 Err(Error::from("Something Wrong!"))
@@ -118,7 +118,7 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackClientStub { fail: false };
+        let slack_client_stub = SlackNotifierStub { fail: false };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
@@ -139,7 +139,7 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackClientStub { fail: true };
+        let slack_client_stub = SlackNotifierStub { fail: true };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
@@ -160,7 +160,7 @@ mod integration_tests {
             total_cost: None,
         };
 
-        let slack_client_stub = SlackClientStub { fail: false };
+        let slack_client_stub = SlackNotifierStub { fail: false };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 
@@ -177,7 +177,7 @@ mod integration_tests {
             total_cost: Some(String::from("1234.56")),
         };
 
-        let slack_client_stub = SlackClientStub { fail: false };
+        let slack_client_stub = SlackNotifierStub { fail: false };
 
         let reporting_date = Local.ymd(2021, 8, 1);
 

@@ -24,23 +24,23 @@ pub trait SendMessage {
     fn send(self, message: NotificationMessage) -> Result<(), Error>;
 }
 
-/// Client object of Slack to send notification message.
-pub struct SlackClient {
+/// An object to send notification message to Slack.
+pub struct SlackNotifier {
     /// `Slack` object which is initialized with Webhook URL.
     slack: Slack,
 }
-impl SlackClient {
-    /// Construct a `SlackClient` object.
+impl SlackNotifier {
+    /// Construct a `SlackNotifier` object.
     /// In this method, `Slack` object is initialized with Webhook URL
     /// which is set as an environment variable.
     pub fn new() -> Self {
         dotenv().ok();
         let webhook_url = dotenv::var("SLACK_WEBHOOK_URL").expect("Webhook URL not found.");
         let slack = Slack::new(webhook_url.as_ref()).unwrap();
-        SlackClient { slack: slack }
+        SlackNotifier { slack: slack }
     }
 }
-impl SendMessage for SlackClient {
+impl SendMessage for SlackNotifier {
     /// Send message to Slack
     fn send(self, message: NotificationMessage) -> Result<(), Error> {
         let payload = PayloadBuilder::new()
